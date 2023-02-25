@@ -25,6 +25,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.1"
+  chess:
+    dependency: transitive
+    description:
+      name: chess
+      sha256: "69dd13135d2ad3fb523483488db811d4aea2e550bfd6454e93ceccaf042a8614"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.0"
+  chess_vectors_flutter:
+    dependency: transitive
+    description:
+      name: chess_vectors_flutter
+      sha256: "988ff9ec3fa00174f0c0bbe0d50ca776803d9c8fff84d326876ee8a2e11dce31"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.18"
   clock:
     dependency: transitive
     description:
@@ -70,11 +86,27 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  flutter_stateless_chessboard:
+    dependency: "direct main"
+    description:
+      name: flutter_stateless_chessboard
+      sha256: b2872bf6f273eff1cc04c2eaa855a9adeec3997fd1b03f0682f5be679ae60c42
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
+  fpdart:
+    dependency: transitive
+    description:
+      name: fpdart
+      sha256: cfeeedd030503c8317868411659cf95c4a204cc3e82d7e9fff2e272aaef12655
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.14"
   js:
     dependency: transitive
     description:
@@ -115,6 +147,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.0"
+  nested:
+    dependency: transitive
+    description:
+      name: nested
+      sha256: "03bac4c528c64c95c722ec99280375a6f2fc708eec17c7b3f07253b626cd2a20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   path:
     dependency: transitive
     description:
@@ -123,6 +163,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.2"
+  provider:
+    dependency: transitive
+    description:
+      name: provider
+      sha256: cdbe7530b12ecd9eb455bdaa2fcb8d4dad22e80b8afb4798b41479d5ce26847f
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.5"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -176,6 +224,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.16"
+  tuple:
+    dependency: transitive
+    description:
+      name: tuple
+      sha256: "0ea99cd2f9352b2586583ab2ce6489d1f95a5f6de6fb9492faaf97ae2060f0aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   vector_math:
     dependency: transitive
     description:
@@ -186,3 +242,4 @@ packages:
     version: "2.1.4"
 sdks:
   dart: ">=2.19.2 <3.0.0"
+  flutter: ">=1.17.0"
