@@ -1,6 +1,7 @@
 {
   "name": "Flutter",
   "image": "cirrusci/flutter:3.7.5",
+  "forwardPorts": [8080],
   "customizations": {
     "vscode": {
       "extensions": [
