@@ -40,6 +40,11 @@ dependencies:
       url: https://github.com/bencehornak/flutter_chess_board
       ref: master
 
+  chess_pgn_parser:
+    git:
+      url: https://github.com/bencehornak/dart-chess-pgn-parser
+      ref: develop
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
