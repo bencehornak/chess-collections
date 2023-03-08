@@ -40,11 +40,18 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: ChessMoveHistory(
                     game: game!,
+                    onChessPositionChosen: _onChessPositionChosen,
                   ),
                 ),
               ],
             ),
     );
+  }
+
+  void _onChessPositionChosen(Chess board) {
+    setState(() {
+      controller = ChessBoardController.fromGame(board);
+    });
   }
 }
 
@@ -59,8 +66,13 @@ class PgnLoading extends StatelessWidget {
 
 class ChessMoveHistory extends StatelessWidget {
   final GameWithVariations game;
+  final void Function(Chess board) onChessPositionChosen;
 
-  const ChessMoveHistory({required this.game, Key? key}) : super(key: key);
+  const ChessMoveHistory({
+    required this.game,
+    required this.onChessPositionChosen,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -79,8 +91,12 @@ class ChessMoveHistory extends StatelessWidget {
   List<Widget> _generateRows() {
     final List<Widget> rows = [];
     game.traverse((board, lastMove, nextMoves) {
+      Chess boardCopy = board.copy();
       rows.add(ChessMove(
-          color: board.turn, moveNumber: board.move_number, san: lastMove.san));
+          onTap: () => onChessPositionChosen(boardCopy),
+          color: board.turn,
+          moveNumber: board.move_number,
+          san: lastMove.san));
     });
     return rows;
   }
@@ -92,10 +108,13 @@ class ChessMove extends StatelessWidget {
   final ch.Color color;
   final int moveNumber;
   final String san;
+  final GestureTapCallback? onTap;
+
   const ChessMove({
     required this.color,
     required this.moveNumber,
     required this.san,
+    required this.onTap,
     Key? key,
   }) : super(key: key);
 
@@ -111,19 +130,22 @@ class ChessMove extends StatelessWidget {
     final dots = lastMoveColor == ch.Color.WHITE ? '.' : '...';
     final halfMoveNumber =
         (fixedMoveNumber - 1) * 2 + (lastMoveColor == ch.Color.BLACK ? 1 : 0);
-    return Padding(
-      padding: EdgeInsets.only(left: (12 * halfMoveNumber).toDouble()),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Text(
-              '$fixedMoveNumber$dots',
-              style: _moveNumberTextStyle,
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.only(left: (12 * halfMoveNumber).toDouble()),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: Text(
+                '$fixedMoveNumber$dots',
+                style: _moveNumberTextStyle,
+              ),
             ),
-          ),
-          Text(san),
-        ],
+            Text(san),
+          ],
+        ),
       ),
     );
   }
