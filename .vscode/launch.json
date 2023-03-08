@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "chess-collections",
+            "name": "Web server",
             "request": "launch",
             "type": "dart",
             "deviceId": "web-server",
@@ -10,6 +10,12 @@
                 "--web-port=8080",
                 "--web-hostname=0.0.0.0",
             ]
+        },
+        {
+            "name": "Linux",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "linux",
         },
     ]
 }
