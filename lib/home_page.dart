@@ -1,3 +1,5 @@
+import 'package:chess_collections/debug_constants.dart';
+import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 
@@ -9,7 +11,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  GameWithVariations? game;
   ChessBoardController controller = ChessBoardController();
+
+  @override
+  void initState() {
+    game = PgnReader.fromString(DebugConstants.examplePGN).parse()[0];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,34 +26,51 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Chess Demo'),
       ),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ChessBoard(
-            controller: controller,
-            boardColor: BoardColor.orange,
-            boardOrientation: PlayerColor.white,
-          ),
-          const Expanded(
-            child: ChessMoveHistory(),
-          ),
-        ],
-      ),
+      body: game == null
+          ? const PgnLoading()
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ChessBoard(
+                  controller: controller,
+                  boardColor: BoardColor.orange,
+                  boardOrientation: PlayerColor.white,
+                ),
+                Expanded(
+                  child: ChessMoveHistory(
+                    game: game!,
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }
 
+class PgnLoading extends StatelessWidget {
+  const PgnLoading({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const CircularProgressIndicator();
+  }
+}
+
 class ChessMoveHistory extends StatelessWidget {
-  const ChessMoveHistory({Key? key}) : super(key: key);
+  final GameWithVariations game;
+
+  const ChessMoveHistory({required this.game, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(minWidth: 120),
-      child: const Padding(
-        padding: EdgeInsets.all(24),
-        child:
-            Text('1. e4 e5 2. Nc3 Nf6 3. f4 exf4', textAlign: TextAlign.start),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          game.toString(),
+          textAlign: TextAlign.start,
+        ),
       ),
     );
   }
