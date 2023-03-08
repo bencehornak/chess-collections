@@ -34,7 +34,7 @@ packages:
     source: hosted
     version: "1.2.1"
   chess:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: chess
       sha256: b34d4f36122524d0fe1eb10ff641c85c54581f27282227e17da8badbc317e111

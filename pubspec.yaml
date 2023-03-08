@@ -45,6 +45,8 @@ dependencies:
       url: https://github.com/bencehornak/dart-chess-pgn-parser
       ref: develop
 
+  chess: ^0.8.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

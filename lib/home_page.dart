@@ -2,6 +2,7 @@ import 'package:chess_collections/debug_constants.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
+import 'package:chess/chess.dart' as ch;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -67,10 +68,62 @@ class ChessMoveHistory extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 120),
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Text(
-          game.toString(),
-          textAlign: TextAlign.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _generateRows(),
         ),
+      ),
+    );
+  }
+
+  List<Widget> _generateRows() {
+    final List<Widget> rows = [];
+    game.traverse((board, lastMove, nextMoves) {
+      rows.add(ChessMove(
+          color: board.turn, moveNumber: board.move_number, san: lastMove.san));
+    });
+    return rows;
+  }
+}
+
+class ChessMove extends StatelessWidget {
+  static const _moveNumberTextStyle = TextStyle(fontWeight: FontWeight.bold);
+
+  final ch.Color color;
+  final int moveNumber;
+  final String san;
+  const ChessMove({
+    required this.color,
+    required this.moveNumber,
+    required this.san,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    ch.Color lastMoveColor =
+        color == ch.Color.WHITE ? ch.Color.BLACK : ch.Color.WHITE;
+    // The moveNumber is increased before black in the chess lib. It is
+    // probably a bug.
+    final fixedMoveNumber =
+        lastMoveColor == ch.Color.BLACK ? moveNumber - 1 : moveNumber;
+
+    final dots = lastMoveColor == ch.Color.WHITE ? '.' : '...';
+    final halfMoveNumber =
+        (fixedMoveNumber - 1) * 2 + (lastMoveColor == ch.Color.BLACK ? 1 : 0);
+    return Padding(
+      padding: EdgeInsets.only(left: (12 * halfMoveNumber).toDouble()),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Text(
+              '$fixedMoveNumber$dots',
+              style: _moveNumberTextStyle,
+            ),
+          ),
+          Text(san),
+        ],
       ),
     );
   }
