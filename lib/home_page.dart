@@ -24,7 +24,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ChessCollectionsAppBar(),
+      appBar: ChessCollectionsAppBar(
+        onPgnImportPressed: _onPgnImportPressed,
+      ),
       body: game == null
           ? const PgnLoading()
           : Row(
@@ -51,12 +53,22 @@ class _HomePageState extends State<HomePage> {
       controller = ChessBoardController.fromGame(board);
     });
   }
+
+  void _onPgnImportPressed() {}
 }
 
 class ChessCollectionsAppBar extends AppBar {
-  ChessCollectionsAppBar({Key? key})
-      : super(
+  ChessCollectionsAppBar({
+    required VoidCallback onPgnImportPressed,
+    Key? key,
+  }) : super(
           title: const Text('Chess Collections'),
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.file_open),
+              onPressed: onPgnImportPressed,
+            )
+          ],
           key: key,
         );
 }
