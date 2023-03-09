@@ -19,12 +19,6 @@ class _HomePageState extends State<HomePage> {
   ChessBoardController controller = ChessBoardController();
 
   @override
-  void initState() {
-    game = PgnReader.fromString(DebugConstants.examplePGN).parse()[0];
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: ChessCollectionsAppBar(
@@ -58,12 +52,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onPgnImportPressed() async {
-    final importedPgn = await _showImportDialogPgn();
-    _logger.info('The imported PGN is:\n$importedPgn');
+    final importedGame = await _showImportDialogPgn();
+    _logger.info(
+        'The imported games are (choosing the first game):\n$importedGame');
+    setState(() {
+      game = importedGame?[0];
+    });
   }
 
-  Future<String?> _showImportDialogPgn() {
-    return showDialog<String>(
+  Future<List<GameWithVariations>?> _showImportDialogPgn() {
+    return showDialog<List<GameWithVariations>>(
       context: context,
       builder: (BuildContext context) => const PgnImportDialog(),
     );
@@ -116,7 +114,12 @@ class _PgnImportDialogState extends State<PgnImportDialog> {
           ),
           child: const Text('Import'),
           onPressed: () {
-            Navigator.of(context).pop(_controller.text);
+            try {
+              final game = PgnReader.fromString(_controller.text).parse();
+              Navigator.of(context).pop(game);
+            } catch (error, stackTrace) {
+              _logger.warning('Error while parsing PGN', error, stackTrace);
+            }
           },
         ),
       ],
