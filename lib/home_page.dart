@@ -3,6 +3,9 @@ import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'package:chess/chess.dart' as ch;
+import 'package:logging/logging.dart';
+
+final _logger = Logger('home_page');
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -54,7 +57,71 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onPgnImportPressed() {}
+  void _onPgnImportPressed() async {
+    final importedPgn = await _showImportDialogPgn();
+    _logger.info('The imported PGN is:\n$importedPgn');
+  }
+
+  Future<String?> _showImportDialogPgn() {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => const PgnImportDialog(),
+    );
+  }
+}
+
+class PgnImportDialog extends StatefulWidget {
+  const PgnImportDialog({Key? key}) : super(key: key);
+
+  @override
+  State<PgnImportDialog> createState() => _PgnImportDialogState();
+}
+
+class _PgnImportDialogState extends State<PgnImportDialog> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Import PGN'),
+      content: SizedBox(
+        width: 400,
+        height: 600,
+        child: TextField(
+          controller: _controller,
+          minLines: null,
+          maxLines: null,
+          expands: true,
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          style: TextButton.styleFrom(
+            textStyle: Theme.of(context).textTheme.labelLarge,
+          ),
+          child: const Text('Cancel'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        TextButton(
+          style: TextButton.styleFrom(
+            textStyle: Theme.of(context).textTheme.labelLarge,
+          ),
+          child: const Text('Import'),
+          onPressed: () {
+            Navigator.of(context).pop(_controller.text);
+          },
+        ),
+      ],
+    );
+  }
 }
 
 class ChessCollectionsAppBar extends AppBar {
