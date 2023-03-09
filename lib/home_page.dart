@@ -77,6 +77,7 @@ class PgnImportDialog extends StatefulWidget {
 
 class _PgnImportDialogState extends State<PgnImportDialog> {
   late TextEditingController _controller;
+  dynamic error;
 
   @override
   void initState() {
@@ -96,6 +97,11 @@ class _PgnImportDialogState extends State<PgnImportDialog> {
           minLines: null,
           maxLines: null,
           expands: true,
+          decoration: error != null
+              ? InputDecoration(
+                  errorText: error.toString(),
+                )
+              : null,
         ),
       ),
       actions: <Widget>[
@@ -119,6 +125,9 @@ class _PgnImportDialogState extends State<PgnImportDialog> {
               Navigator.of(context).pop(game);
             } catch (error, stackTrace) {
               _logger.warning('Error while parsing PGN', error, stackTrace);
+              setState(() {
+                this.error = error;
+              });
             }
           },
         ),
