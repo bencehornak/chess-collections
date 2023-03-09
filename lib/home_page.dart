@@ -24,9 +24,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chess Demo'),
-      ),
+      appBar: ChessCollectionsAppBar(),
       body: game == null
           ? const PgnLoading()
           : Row(
@@ -53,6 +51,14 @@ class _HomePageState extends State<HomePage> {
       controller = ChessBoardController.fromGame(board);
     });
   }
+}
+
+class ChessCollectionsAppBar extends AppBar {
+  ChessCollectionsAppBar({Key? key})
+      : super(
+          title: const Text('Chess Collections'),
+          key: key,
+        );
 }
 
 class PgnLoading extends StatelessWidget {
