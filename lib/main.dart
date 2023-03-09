@@ -1,12 +1,21 @@
 import 'package:chess_collections/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'dart:developer' as developer;
 
 void main() {
   Logger.root.level = Level.INFO;
   Logger.root.onRecord.listen((record) {
-    // ignore: avoid_print
-    print('${record.level.name}: ${record.time}: ${record.message}');
+    developer.log(
+      record.message,
+      time: record.time,
+      sequenceNumber: record.sequenceNumber,
+      level: record.level.value,
+      name: record.loggerName,
+      zone: record.zone,
+      error: record.error,
+      stackTrace: record.stackTrace,
+    );
   });
 
   runApp(const MyApp());
