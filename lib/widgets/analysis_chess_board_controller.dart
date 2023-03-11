@@ -96,6 +96,19 @@ class AnalysisChessBoardController
     notifyListeners();
   }
 
+  void goForward(GameNode child) {
+    assert(identical(child.parent, currentNode));
+
+    _skipNextOnBoardChange = true;
+
+    value.currentNode = child;
+    value.chessBoardController
+        .makeMove(from: child.move!.fromAlgebraic, to: child.move!.toAlgebraic);
+    value._lastChessBoardState =
+        value.chessBoardController.game.history.lastOrNull;
+    notifyListeners();
+  }
+
   bool _movesEqual(Move a, Move b) {
     return a.color == b.color &&
         a.from == b.from &&

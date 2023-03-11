@@ -95,6 +95,10 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
         return KeyEventResult.handled;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
         _logger.info('Right key pressed');
+        if (controller.currentNode != null &&
+            controller.currentNode!.children.isNotEmpty) {
+          controller.goForward(controller.currentNode!.children.first);
+        }
         return KeyEventResult.handled;
       }
     }
