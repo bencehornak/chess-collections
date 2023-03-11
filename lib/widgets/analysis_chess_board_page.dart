@@ -91,6 +91,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     if (event is KeyDownEvent || event is KeyRepeatEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
         _logger.info('Left key pressed');
+        controller.goBackIfPossible();
         return KeyEventResult.handled;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
         _logger.info('Right key pressed');

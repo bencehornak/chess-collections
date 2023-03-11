@@ -28,6 +28,8 @@ class AnalysisChessBoardController
   Chess? get board => value.chessBoardController.game;
   ChessBoardController get chessBoardController => value.chessBoardController;
 
+  bool _skipNextOnBoardChange = false;
+
   AnalysisChessBoardController() : super(AnalysisChessBoardState());
 
   @override
@@ -53,6 +55,12 @@ class AnalysisChessBoardController
   }
 
   void _onBoardChange() {
+    // Skip processing, if the board change was triggered by code
+    if (_skipNextOnBoardChange == true) {
+      _skipNextOnBoardChange = false;
+      return;
+    }
+
     // If the user followed a line in the analysis, let's adjust currentNode to
     // the corresponding GameNode
     if (value.currentNode != null && board!.history.length >= 2) {
@@ -73,6 +81,18 @@ class AnalysisChessBoardController
     // currentNode to null
     value.currentNode = null;
     value._lastChessBoardState = null;
+    notifyListeners();
+  }
+
+  void goBackIfPossible() {
+    if (currentNode?.rootNode ?? true) return;
+
+    _skipNextOnBoardChange = true;
+
+    value.currentNode = value.currentNode!.parent;
+    value.chessBoardController.undoMove();
+    value._lastChessBoardState =
+        value.chessBoardController.game.history.lastOrNull;
     notifyListeners();
   }
 
