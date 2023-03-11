@@ -8,16 +8,16 @@ import '../util/linear_chess_sequence.dart';
 
 final _logger = Logger('home_page');
 
-class HomePage extends StatefulWidget {
+class AnalysisChessBoardPage extends StatefulWidget {
   static final _globalKey = GlobalKey();
 
-  HomePage() : super(key: _globalKey);
+  AnalysisChessBoardPage() : super(key: _globalKey);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<AnalysisChessBoardPage> createState() => _AnalysisChessBoardPageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   GameWithVariations? game;
   ChessBoardController controller = ChessBoardController();
   bool _immportPgnDialogOpen = false;

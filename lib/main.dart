@@ -1,4 +1,4 @@
-import 'widgets/home_page.dart';
+import 'widgets/analysis_chess_board_page.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'dart:developer' as developer;
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.brown,
       ),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: AnalysisChessBoardPage(),
     );
   }
 }
