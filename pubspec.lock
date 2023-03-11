@@ -46,7 +46,7 @@ packages:
     description:
       path: "."
       ref: develop
-      resolved-ref: "4a76039cde0162f10c53aa365db588a35c5e656a"
+      resolved-ref: "4545a756ec8e81ed2fb7999eff7da00c92f1907d"
       url: "https://github.com/bencehornak/dart-chess-pgn-parser"
     source: git
     version: "0.1.0"

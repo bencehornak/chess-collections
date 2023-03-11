@@ -193,13 +193,15 @@ class ChessMoveHistory extends StatelessWidget {
 
   List<Widget> _generateRows() {
     final List<Widget> rows = [];
-    game.traverse((board, lastMove, nextMoves) {
+    game.traverse((board, node) {
+      if (node.rootNode) return; // Root node has no visualization
+
       Chess boardCopy = board.copy();
       rows.add(ChessMove(
           onTap: () => onChessPositionChosen(boardCopy),
           color: board.turn,
           moveNumber: board.move_number,
-          san: lastMove.san));
+          san: node.move!.san));
     });
     return rows;
   }
