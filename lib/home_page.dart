@@ -1,4 +1,6 @@
+import 'package:chess_collections/debug_constants.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'package:logging/logging.dart';
@@ -110,6 +112,11 @@ class _PgnImportDialogState extends State<PgnImportDialog> {
         ),
       ),
       actions: <Widget>[
+        if (kDebugMode)
+          TextButton(
+            child: const Text('Use advanced.pgn'),
+            onPressed: () => _parseAndPop(context, DebugConstants.advancedPGN),
+          ),
         TextButton(
           child: const Text('Cancel'),
           onPressed: () {
@@ -120,8 +127,7 @@ class _PgnImportDialogState extends State<PgnImportDialog> {
           child: const Text('Import'),
           onPressed: () {
             try {
-              final game = PgnReader.fromString(_controller.text).parse();
-              Navigator.of(context).pop(game);
+              _parseAndPop(context, _controller.text);
             } catch (error, stackTrace) {
               _logger.warning('Error while parsing PGN', error, stackTrace);
               setState(() {
@@ -132,6 +138,11 @@ class _PgnImportDialogState extends State<PgnImportDialog> {
         ),
       ],
     );
+  }
+
+  void _parseAndPop(BuildContext context, String pgnString) {
+    final game = PgnReader.fromString(pgnString).parse();
+    Navigator.of(context).pop(game);
   }
 }
 
