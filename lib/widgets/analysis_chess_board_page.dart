@@ -1,3 +1,4 @@
+import 'package:chess_collections/widgets/analysis_chess_board_controller.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
@@ -19,12 +20,14 @@ class AnalysisChessBoardPage extends StatefulWidget {
 
 class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   GameWithVariations? game;
-  ChessBoardController controller = ChessBoardController();
+  late AnalysisChessBoardController controller;
   bool _immportPgnDialogOpen = false;
 
   @override
   void initState() {
     super.initState();
+
+    controller = AnalysisChessBoardController();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await Future.delayed(const Duration(milliseconds: 200));
@@ -38,29 +41,26 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       appBar: ChessCollectionsAppBar(
         onPgnImportPressed: _importPgn,
       ),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ChessBoard(
-            controller: controller,
-            boardColor: BoardColor.orange,
-            boardOrientation: PlayerColor.white,
-          ),
-          Expanded(
-            child: ChessMoveHistory(
-              game: game,
-              onChessPositionChosen: _onChessPositionChosen,
+      body: ValueListenableBuilder<AnalysisChessBoardState>(
+        valueListenable: controller,
+        builder: (context, state, _) => Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ChessBoard(
+              controller: controller.chessBoardController,
+              boardColor: BoardColor.orange,
+              boardOrientation: PlayerColor.white,
             ),
-          ),
-        ],
+            Expanded(
+              child: ChessMoveHistory(
+                game: game,
+                analysisChessBoardController: controller,
+              ),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  void _onChessPositionChosen(Chess board) {
-    setState(() {
-      controller = ChessBoardController.fromGame(board);
-    });
   }
 
   void _importPgn() async {
@@ -104,11 +104,11 @@ class ChessCollectionsAppBar extends AppBar {
 
 class ChessMoveHistory extends StatelessWidget {
   final GameWithVariations? game;
-  final void Function(Chess board) onChessPositionChosen;
+  final AnalysisChessBoardController analysisChessBoardController;
 
   const ChessMoveHistory({
     required this.game,
-    required this.onChessPositionChosen,
+    required this.analysisChessBoardController,
     Key? key,
   }) : super(key: key);
 
@@ -140,7 +140,7 @@ class ChessMoveHistory extends StatelessWidget {
 
     return linearChessMoveSequences
         .map((item) => LinearChessMoveSequenceWidget(
-              onChessPositionChosen: onChessPositionChosen,
+              analysisChessBoardController: analysisChessBoardController,
               linearChessMoveSequence: item,
             ))
         .toList();
@@ -148,11 +148,11 @@ class ChessMoveHistory extends StatelessWidget {
 }
 
 class LinearChessMoveSequenceWidget extends StatelessWidget {
-  final void Function(Chess board) onChessPositionChosen;
+  final AnalysisChessBoardController analysisChessBoardController;
   final LinearChessMoveSequence linearChessMoveSequence;
 
   const LinearChessMoveSequenceWidget({
-    required this.onChessPositionChosen,
+    required this.analysisChessBoardController,
     required this.linearChessMoveSequence,
     super.key,
   });
@@ -169,8 +169,9 @@ class LinearChessMoveSequenceWidget extends StatelessWidget {
         spacing: 8,
         children: linearChessMoveSequence.sequence.map((item) {
           return ChessMove(
-            move: item.move,
-            onTap: () => onChessPositionChosen(item.board),
+            move: item.node.move!,
+            onTap: () =>
+                analysisChessBoardController.goTo(item.node, item.board),
           );
         }).toList(),
       ),

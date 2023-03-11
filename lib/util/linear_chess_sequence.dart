@@ -16,7 +16,7 @@ List<LinearChessMoveSequence> breakDownToLinearChessSequences(
         node.parent!.children.length > 1) {
       while (linearChessMoveSequencesStack.isNotEmpty &&
           linearChessMoveSequencesStack
-                  .last.sequence.first.move.totalHalfMoveNumber >=
+                  .last.sequence.first.node.move!.totalHalfMoveNumber >=
               node.move!.totalHalfMoveNumber) {
         linearChessMoveSequencesStack.removeLast();
       }
@@ -27,7 +27,7 @@ List<LinearChessMoveSequence> breakDownToLinearChessSequences(
       linearChessMoveSequencesStack.add(newSequence);
     }
     linearChessMoveSequencesStack.last
-        .addSequenceItem(LinearChessMoveSequenceItem(board.copy(), node.move!));
+        .addSequenceItem(LinearChessMoveSequenceItem(board.copy(), node));
   });
   return linearChessMoveSequencesOut;
 }
@@ -44,15 +44,15 @@ class LinearChessMoveSequence {
 
   @override
   String toString() =>
-      'depth: $depth, sequence: ${sequence.isEmpty ? 'empty' : '${sequence.first.move} - ${sequence.last.move}'}';
+      'depth: $depth, sequence: ${sequence.isEmpty ? 'empty' : '${sequence.first.node.move} - ${sequence.last.node.move}'}';
 }
 
 class LinearChessMoveSequenceItem {
   final Chess board;
-  final AnnotatedMove move;
+  final GameNode node;
 
   LinearChessMoveSequenceItem(
     this.board,
-    this.move,
+    this.node,
   );
 }
