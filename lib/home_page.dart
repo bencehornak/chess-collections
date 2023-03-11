@@ -198,10 +198,7 @@ class ChessMoveHistory extends StatelessWidget {
 
       Chess boardCopy = board.copy();
       rows.add(ChessMove(
-          onTap: () => onChessPositionChosen(boardCopy),
-          color: board.turn,
-          moveNumber: board.move_number,
-          san: node.move!.san));
+          onTap: () => onChessPositionChosen(boardCopy), move: node.move!));
     });
     return rows;
   }
@@ -210,45 +207,32 @@ class ChessMoveHistory extends StatelessWidget {
 class ChessMove extends StatelessWidget {
   static const _moveNumberTextStyle = TextStyle(fontWeight: FontWeight.bold);
 
-  final ch.Color color;
-  final int moveNumber;
-  final String san;
+  final AnnotatedMove move;
   final GestureTapCallback? onTap;
 
   const ChessMove({
-    required this.color,
-    required this.moveNumber,
-    required this.san,
+    required this.move,
     required this.onTap,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    ch.Color lastMoveColor =
-        color == ch.Color.WHITE ? ch.Color.BLACK : ch.Color.WHITE;
-    // The moveNumber is increased before black in the chess lib. It is
-    // probably a bug.
-    final fixedMoveNumber =
-        lastMoveColor == ch.Color.BLACK ? moveNumber - 1 : moveNumber;
-
-    final dots = lastMoveColor == ch.Color.WHITE ? '.' : '...';
-    final halfMoveNumber =
-        (fixedMoveNumber - 1) * 2 + (lastMoveColor == ch.Color.BLACK ? 1 : 0);
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.only(left: (12 * halfMoveNumber).toDouble()),
+        padding: EdgeInsets.only(
+            left: (12 * (move.totalHalfMoveNumber - 1)).toDouble()),
         child: Row(
           children: [
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: Text(
-                '$fixedMoveNumber$dots',
+                move.moveNumberIndicator,
                 style: _moveNumberTextStyle,
               ),
             ),
-            Text(san),
+            Text(move.san),
           ],
         ),
       ),
