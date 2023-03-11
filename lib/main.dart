@@ -1,4 +1,4 @@
-import 'package:chess_collections/home_page.dart';
+import 'widgets/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'dart:developer' as developer;

@@ -4,7 +4,7 @@ import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'package:logging/logging.dart';
 
 import 'import_pgn_dialog.dart';
-import 'linear_chess_sequence.dart';
+import '../util/linear_chess_sequence.dart';
 
 final _logger = Logger('home_page');
 

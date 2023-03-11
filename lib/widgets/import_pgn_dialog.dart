@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
-import 'debug_constants.dart';
+import '../util/debug_constants.dart';
 
 final _logger = Logger('import_pgn_dialog');
 
