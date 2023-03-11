@@ -5,6 +5,8 @@ import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'package:chess/chess.dart' as ch;
 import 'package:logging/logging.dart';
 
+import 'linear_chess_sequence.dart';
+
 final _logger = Logger('home_page');
 
 class HomePage extends StatefulWidget {
@@ -179,12 +181,9 @@ class ChessMoveHistory extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _generateRows(),
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _generateRows(),
           ),
         ),
       ),
@@ -192,15 +191,49 @@ class ChessMoveHistory extends StatelessWidget {
   }
 
   List<Widget> _generateRows() {
-    final List<Widget> rows = [];
-    game.traverse((board, node) {
-      if (node.rootNode) return; // Root node has no visualization
+    List<LinearChessMoveSequence> linearChessMoveSequences =
+        breakDownToLinearChessSequences(game);
 
-      Chess boardCopy = board.copy();
-      rows.add(ChessMove(
-          onTap: () => onChessPositionChosen(boardCopy), move: node.move!));
-    });
-    return rows;
+    _logger.info(
+        'Linear chess move sequences:\n${linearChessMoveSequences.join('\n')}');
+
+    return linearChessMoveSequences
+        .map((item) => LinearChessMoveSequenceWidget(
+              onChessPositionChosen: onChessPositionChosen,
+              linearChessMoveSequence: item,
+            ))
+        .toList();
+  }
+}
+
+class LinearChessMoveSequenceWidget extends StatelessWidget {
+  final void Function(Chess board) onChessPositionChosen;
+  final LinearChessMoveSequence linearChessMoveSequence;
+
+  const LinearChessMoveSequenceWidget({
+    required this.onChessPositionChosen,
+    required this.linearChessMoveSequence,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 12 * linearChessMoveSequence.depth.toDouble(),
+        bottom: 8,
+      ),
+      child: Wrap(
+        alignment: WrapAlignment.start,
+        spacing: 8,
+        children: linearChessMoveSequence.sequence.map((item) {
+          return ChessMove(
+            move: item.move,
+            onTap: () => onChessPositionChosen(item.board),
+          );
+        }).toList(),
+      ),
+    );
   }
 }
 
@@ -220,21 +253,18 @@ class ChessMove extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.only(
-            left: (12 * (move.totalHalfMoveNumber - 1)).toDouble()),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 12),
-              child: Text(
-                move.moveNumberIndicator,
-                style: _moveNumberTextStyle,
-              ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: Text(
+              move.moveNumberIndicator,
+              style: _moveNumberTextStyle,
             ),
-            Text(move.san),
-          ],
-        ),
+          ),
+          Text(move.san),
+        ],
       ),
     );
   }
