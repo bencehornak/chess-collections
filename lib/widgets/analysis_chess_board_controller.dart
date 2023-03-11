@@ -5,19 +5,28 @@ import 'package:collection/collection.dart';
 import 'package:chess/chess.dart' as ch;
 
 class AnalysisChessBoardState {
+  GameWithVariations? game;
   GameNode? currentNode;
   ChessBoardController chessBoardController;
+  ch.State? _lastChessBoardState;
 
   AnalysisChessBoardState() : chessBoardController = ChessBoardController();
+
+  void _reset() {
+    game = null;
+    currentNode = null;
+    chessBoardController.dispose();
+    chessBoardController = ChessBoardController();
+    _lastChessBoardState = null;
+  }
 }
 
 class AnalysisChessBoardController
     extends ValueNotifier<AnalysisChessBoardState> {
+  GameWithVariations? get game => value.game;
   GameNode? get currentNode => value.currentNode;
   Chess? get board => value.chessBoardController.game;
   ChessBoardController get chessBoardController => value.chessBoardController;
-
-  ch.State? _lastChessBoardState;
 
   AnalysisChessBoardController() : super(AnalysisChessBoardState());
 
@@ -27,12 +36,19 @@ class AnalysisChessBoardController
     super.dispose();
   }
 
+  void loadGame(GameWithVariations? game) {
+    value._reset();
+    value.game = game;
+    value.currentNode = game?.rootNode;
+    notifyListeners();
+  }
+
   void goTo(GameNode node, Chess board) {
     value.currentNode = node;
     value.chessBoardController.dispose();
     value.chessBoardController = ChessBoardController.fromGame(board);
     value.chessBoardController.addListener(_onBoardChange);
-    _lastChessBoardState = board.history.last;
+    value._lastChessBoardState = board.history.last;
     notifyListeners();
   }
 
@@ -41,13 +57,13 @@ class AnalysisChessBoardController
     // the corresponding GameNode
     if (value.currentNode != null && board!.history.length >= 2) {
       final secondLastBoardState = board!.history[board!.history.length - 2];
-      if (identical(_lastChessBoardState, secondLastBoardState)) {
+      if (identical(value._lastChessBoardState, secondLastBoardState)) {
         final children = value.currentNode!.children;
         final matchingContinuationNode = children.firstWhereOrNull(
             (child) => _movesEqual(child.move!, board!.history.last.move));
         if (matchingContinuationNode != null) {
           value.currentNode = matchingContinuationNode;
-          _lastChessBoardState = board!.history.last;
+          value._lastChessBoardState = board!.history.last;
           notifyListeners();
           return;
         }
@@ -56,7 +72,7 @@ class AnalysisChessBoardController
     // Otherwise the user has diverged from the analysis, let's set the
     // currentNode to null
     value.currentNode = null;
-    _lastChessBoardState = null;
+    value._lastChessBoardState = null;
     notifyListeners();
   }
 

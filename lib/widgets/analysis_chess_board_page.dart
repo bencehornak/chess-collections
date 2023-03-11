@@ -1,5 +1,6 @@
 import 'package:chess_collections/widgets/analysis_chess_board_controller.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'package:logging/logging.dart';
@@ -53,7 +54,6 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
             ),
             Expanded(
               child: ChessMoveHistory(
-                game: game,
                 analysisChessBoardController: controller,
               ),
             ),
@@ -73,9 +73,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     setState(() => _immportPgnDialogOpen = false);
     _logger.info(
         'The imported games are (choosing the first game):\n$importedGame');
-    setState(() {
-      game = importedGame?[0];
-    });
+    controller.loadGame(importedGame?.firstOrNull);
   }
 
   Future<List<GameWithVariations>?> _showImportDialogPgn() {
@@ -103,18 +101,16 @@ class ChessCollectionsAppBar extends AppBar {
 }
 
 class ChessMoveHistory extends StatelessWidget {
-  final GameWithVariations? game;
   final AnalysisChessBoardController analysisChessBoardController;
 
   const ChessMoveHistory({
-    required this.game,
     required this.analysisChessBoardController,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return game == null
+    return analysisChessBoardController.game == null
         ? Container()
         : ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 120),
@@ -133,7 +129,7 @@ class ChessMoveHistory extends StatelessWidget {
 
   List<Widget> _generateRows() {
     List<LinearChessMoveSequence> linearChessMoveSequences =
-        breakDownToLinearChessSequences(game!);
+        breakDownToLinearChessSequences(analysisChessBoardController.game!);
 
     _logger.info(
         'Linear chess move sequences:\n${linearChessMoveSequences.join('\n')}');
