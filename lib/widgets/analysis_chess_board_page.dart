@@ -2,6 +2,7 @@ import 'package:chess_collections/widgets/analysis_chess_board_controller.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'package:logging/logging.dart';
 
@@ -42,22 +43,25 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       appBar: ChessCollectionsAppBar(
         onPgnImportPressed: _importPgn,
       ),
-      body: ValueListenableBuilder<AnalysisChessBoardState>(
-        valueListenable: controller,
-        builder: (context, state, _) => Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ChessBoard(
-              controller: controller.chessBoardController,
-              boardColor: BoardColor.orange,
-              boardOrientation: PlayerColor.white,
-            ),
-            Expanded(
-              child: ChessMoveHistory(
-                analysisChessBoardController: controller,
+      body: Focus(
+        onKeyEvent: _onKeyEvent,
+        child: ValueListenableBuilder<AnalysisChessBoardState>(
+          valueListenable: controller,
+          builder: (context, state, _) => Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ChessBoard(
+                controller: controller.chessBoardController,
+                boardColor: BoardColor.orange,
+                boardOrientation: PlayerColor.white,
               ),
-            ),
-          ],
+              Expanded(
+                child: ChessMoveHistory(
+                  analysisChessBoardController: controller,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -81,6 +85,19 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       context: context,
       builder: (BuildContext context) => const ImportPgnDialog(),
     );
+  }
+
+  KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent || event is KeyRepeatEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _logger.info('Left key pressed');
+        return KeyEventResult.handled;
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        _logger.info('Right key pressed');
+        return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
   }
 }
 
