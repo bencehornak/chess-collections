@@ -21,14 +21,20 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   GameWithVariations? game;
   ChessBoardController controller = ChessBoardController();
+  bool _immportPgnDialogOpen = false;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await Future.delayed(const Duration(milliseconds: 200));
       if (game == null && mounted) _importPgn();
     });
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: ChessCollectionsAppBar(
         onPgnImportPressed: _importPgn,
@@ -59,7 +65,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _importPgn() async {
+    if (_immportPgnDialogOpen) {
+      _logger.info('ImportPgnDialog is already open, ignoring request');
+      return;
+    }
+    setState(() => _immportPgnDialogOpen = true);
     final importedGame = await _showImportDialogPgn();
+    setState(() => _immportPgnDialogOpen = false);
     _logger.info(
         'The imported games are (choosing the first game):\n$importedGame');
     setState(() {
@@ -70,19 +82,19 @@ class _HomePageState extends State<HomePage> {
   Future<List<GameWithVariations>?> _showImportDialogPgn() {
     return showDialog<List<GameWithVariations>>(
       context: context,
-      builder: (BuildContext context) => const PgnImportDialog(),
+      builder: (BuildContext context) => const ImportPgnDialog(),
     );
   }
 }
 
-class PgnImportDialog extends StatefulWidget {
-  const PgnImportDialog({Key? key}) : super(key: key);
+class ImportPgnDialog extends StatefulWidget {
+  const ImportPgnDialog({Key? key}) : super(key: key);
 
   @override
-  State<PgnImportDialog> createState() => _PgnImportDialogState();
+  State<ImportPgnDialog> createState() => _ImportPgnDialogState();
 }
 
-class _PgnImportDialogState extends State<PgnImportDialog> {
+class _ImportPgnDialogState extends State<ImportPgnDialog> {
   late TextEditingController _controller;
   dynamic error;
 
