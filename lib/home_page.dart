@@ -1,8 +1,6 @@
-import 'package:chess_collections/debug_constants.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
-import 'package:chess/chess.dart' as ch;
 import 'package:logging/logging.dart';
 
 import 'linear_chess_sequence.dart';
