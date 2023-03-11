@@ -251,20 +251,23 @@ class ChessMove extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 4),
-            child: Text(
-              move.moveNumberIndicator,
-              style: _moveNumberTextStyle,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 4),
+              child: Text(
+                move.moveNumberIndicator,
+                style: _moveNumberTextStyle,
+              ),
             ),
-          ),
-          Text(move.san),
-        ],
+            Text(move.san),
+          ],
+        ),
       ),
     );
   }
