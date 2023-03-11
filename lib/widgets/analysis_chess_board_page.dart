@@ -169,9 +169,9 @@ class LinearChessMoveSequenceWidget extends StatelessWidget {
         spacing: 8,
         children: linearChessMoveSequence.sequence.map((item) {
           return ChessMove(
-            move: item.node.move!,
-            onTap: () =>
-                analysisChessBoardController.goTo(item.node, item.board),
+            analysisChessBoardController: analysisChessBoardController,
+            node: item.node,
+            board: item.board,
           );
         }).toList(),
       ),
@@ -180,35 +180,43 @@ class LinearChessMoveSequenceWidget extends StatelessWidget {
 }
 
 class ChessMove extends StatelessWidget {
+  final AnalysisChessBoardController analysisChessBoardController;
   static const _moveNumberTextStyle = TextStyle(fontWeight: FontWeight.bold);
 
-  final AnnotatedMove move;
-  final GestureTapCallback? onTap;
+  final GameNode node;
+  final Chess board;
 
-  const ChessMove({
-    required this.move,
-    required this.onTap,
+  ChessMove({
+    required this.analysisChessBoardController,
+    required this.node,
+    required this.board,
     Key? key,
-  }) : super(key: key);
+  })  : assert(!node.rootNode),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Text(
-                move.moveNumberIndicator,
-                style: _moveNumberTextStyle,
+    return Container(
+      color: analysisChessBoardController.currentNode == node
+          ? Colors.black12
+          : null,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () => analysisChessBoardController.goTo(node, board),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Text(
+                  node.move!.moveNumberIndicator,
+                  style: _moveNumberTextStyle,
+                ),
               ),
-            ),
-            Text(move.san),
-          ],
+              Text(node.move!.san),
+            ],
+          ),
         ),
       ),
     );
