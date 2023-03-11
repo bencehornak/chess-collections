@@ -8,7 +8,9 @@ import 'linear_chess_sequence.dart';
 final _logger = Logger('home_page');
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  static final _globalKey = GlobalKey();
+
+  HomePage() : super(key: _globalKey);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -20,9 +22,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (game == null && mounted) _importPgn();
+    });
+
     return Scaffold(
       appBar: ChessCollectionsAppBar(
-        onPgnImportPressed: _onPgnImportPressed,
+        onPgnImportPressed: _importPgn,
       ),
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -49,7 +56,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onPgnImportPressed() async {
+  void _importPgn() async {
     final importedGame = await _showImportDialogPgn();
     _logger.info(
         'The imported games are (choosing the first game):\n$importedGame');
