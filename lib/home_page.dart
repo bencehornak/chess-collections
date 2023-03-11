@@ -26,24 +26,22 @@ class _HomePageState extends State<HomePage> {
       appBar: ChessCollectionsAppBar(
         onPgnImportPressed: _onPgnImportPressed,
       ),
-      body: game == null
-          ? const PgnLoading()
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ChessBoard(
-                  controller: controller,
-                  boardColor: BoardColor.orange,
-                  boardOrientation: PlayerColor.white,
-                ),
-                Expanded(
-                  child: ChessMoveHistory(
-                    game: game!,
-                    onChessPositionChosen: _onChessPositionChosen,
-                  ),
-                ),
-              ],
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ChessBoard(
+            controller: controller,
+            boardColor: BoardColor.orange,
+            boardOrientation: PlayerColor.white,
+          ),
+          Expanded(
+            child: ChessMoveHistory(
+              game: game,
+              onChessPositionChosen: _onChessPositionChosen,
             ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -154,17 +152,8 @@ class ChessCollectionsAppBar extends AppBar {
         );
 }
 
-class PgnLoading extends StatelessWidget {
-  const PgnLoading({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const CircularProgressIndicator();
-  }
-}
-
 class ChessMoveHistory extends StatelessWidget {
-  final GameWithVariations game;
+  final GameWithVariations? game;
   final void Function(Chess board) onChessPositionChosen;
 
   const ChessMoveHistory({
@@ -175,24 +164,26 @@ class ChessMoveHistory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 120),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _generateRows(),
-          ),
-        ),
-      ),
-    );
+    return game == null
+        ? Container()
+        : ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 120),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: _generateRows(),
+                ),
+              ),
+            ),
+          );
   }
 
   List<Widget> _generateRows() {
     List<LinearChessMoveSequence> linearChessMoveSequences =
-        breakDownToLinearChessSequences(game);
+        breakDownToLinearChessSequences(game!);
 
     _logger.info(
         'Linear chess move sequences:\n${linearChessMoveSequences.join('\n')}');
