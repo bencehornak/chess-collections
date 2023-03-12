@@ -225,13 +225,17 @@ class ChessMove extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Text(
-                  node.move!.moveNumberIndicator,
-                  style: _moveNumberTextStyle,
+              // Show the move number indicator only for white moves and for
+              // first moves after a decision point
+              if (node.move!.color == Color.WHITE ||
+                  node.parent!.children.length > 1)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(
+                    node.move!.moveNumberIndicator,
+                    style: _moveNumberTextStyle,
+                  ),
                 ),
-              ),
               Text(node.move!.san),
             ],
           ),
