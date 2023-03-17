@@ -62,7 +62,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
             children: [
               ChessBoard(
                 controller: controller.chessBoardController,
-                boardColor: BoardColor.orange,
+                boardColor: BoardColor.brown,
                 boardOrientation: PlayerColor.white,
               ),
               Expanded(
