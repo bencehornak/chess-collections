@@ -24,17 +24,26 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   GameWithVariations? game;
   late AnalysisChessBoardController controller;
   bool _immportPgnDialogOpen = false;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
 
     controller = AnalysisChessBoardController();
+    _focusNode = FocusNode(debugLabel: 'AnalysisChessBoardPage');
+    _focusNode.requestFocus();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await Future.delayed(const Duration(milliseconds: 200));
       if (game == null && mounted) _importPgn();
     });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -44,6 +53,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
         onPgnImportPressed: _importPgn,
       ),
       body: Focus(
+        focusNode: _focusNode,
         onKeyEvent: _onKeyEvent,
         child: ValueListenableBuilder<AnalysisChessBoardState>(
           valueListenable: controller,
