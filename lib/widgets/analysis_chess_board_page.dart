@@ -289,32 +289,34 @@ class _ChessMoveState extends State<ChessMove> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      focusNode: _focusNode,
-      onTap: _onMoveSelected,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Show the move number indicator only for white moves and for
-            // first moves after a decision point
-            if (widget.node.move!.color == Color.WHITE ||
-                widget.node.parent!.children.length > 1)
-              Padding(
-                padding: const EdgeInsets.only(right: 4),
-                child: Text(
-                  widget.node.move!.moveNumberIndicator,
-                  style: widget.node.variationDepth == 0
-                      ? _mainLineMoveNumberTextStyle
-                      : _sideLineMoveNumberTextStyle,
+    return Material(
+      child: InkWell(
+        focusNode: _focusNode,
+        onTap: _onMoveSelected,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Show the move number indicator only for white moves and for
+              // first moves after a decision point
+              if (widget.node.move!.color == Color.WHITE ||
+                  widget.node.parent!.children.length > 1)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(
+                    widget.node.move!.moveNumberIndicator,
+                    style: widget.node.variationDepth == 0
+                        ? _mainLineMoveNumberTextStyle
+                        : _sideLineMoveNumberTextStyle,
+                  ),
                 ),
-              ),
-            Text(widget.node.move!.san,
-                style: widget.node.variationDepth == 0
-                    ? _mainLineMoveTextStyle
-                    : _sideLineMoveTextStyle),
-          ],
+              Text(widget.node.move!.san,
+                  style: widget.node.variationDepth == 0
+                      ? _mainLineMoveTextStyle
+                      : _sideLineMoveTextStyle),
+            ],
+          ),
         ),
       ),
     );
