@@ -137,10 +137,12 @@ class ChessCollectionsAppBar extends AppBar {
             IconButton(
               icon: const Icon(Icons.file_open),
               onPressed: onPgnImportPressed,
+              tooltip: 'Import PGN',
             ),
             IconButton(
               icon: const Icon(Icons.rotate_right),
               onPressed: onFlipBoardPressed,
+              tooltip: 'Flip board',
             ),
           ],
           key: key,
