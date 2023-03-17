@@ -169,10 +169,10 @@ class ChessMoveHistory extends StatelessWidget {
         ? Container()
         : ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 120),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: _generateRows(),
