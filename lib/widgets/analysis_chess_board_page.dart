@@ -25,6 +25,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   late AnalysisChessBoardController controller;
   bool _immportPgnDialogOpen = false;
   late FocusNode _focusNode;
+  PlayerColor _boardOrientation = PlayerColor.white;
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     return Scaffold(
       appBar: ChessCollectionsAppBar(
         onPgnImportPressed: _importPgn,
+        onFlipBoardPressed: _flipBoard,
       ),
       body: Focus(
         focusNode: _focusNode,
@@ -63,7 +65,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
               ChessBoard(
                 controller: controller.chessBoardController,
                 boardColor: BoardColor.brown,
-                boardOrientation: PlayerColor.white,
+                boardOrientation: _boardOrientation,
               ),
               Expanded(
                 child: ChessMoveHistory(
@@ -97,6 +99,14 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     );
   }
 
+  void _flipBoard() {
+    setState(() {
+      _boardOrientation = _boardOrientation == PlayerColor.white
+          ? PlayerColor.black
+          : PlayerColor.white;
+    });
+  }
+
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
     if (event is KeyDownEvent || event is KeyRepeatEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
@@ -119,6 +129,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
 class ChessCollectionsAppBar extends AppBar {
   ChessCollectionsAppBar({
     required VoidCallback onPgnImportPressed,
+    required VoidCallback onFlipBoardPressed,
     Key? key,
   }) : super(
           title: const Text('Chess Collections'),
@@ -126,7 +137,11 @@ class ChessCollectionsAppBar extends AppBar {
             IconButton(
               icon: const Icon(Icons.file_open),
               onPressed: onPgnImportPressed,
-            )
+            ),
+            IconButton(
+              icon: const Icon(Icons.rotate_right),
+              onPressed: onFlipBoardPressed,
+            ),
           ],
           key: key,
         );
