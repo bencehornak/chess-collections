@@ -186,9 +186,6 @@ class ChessMoveHistory extends StatelessWidget {
     List<LinearChessMoveSequence> linearChessMoveSequences =
         breakDownToLinearChessSequences(analysisChessBoardController.game!);
 
-    _logger.info(
-        'Linear chess move sequences:\n${linearChessMoveSequences.join('\n')}');
-
     return linearChessMoveSequences
         .map((item) => LinearChessMoveSequenceWidget(
               analysisChessBoardController: analysisChessBoardController,
