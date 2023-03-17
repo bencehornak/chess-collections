@@ -120,6 +120,12 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
           controller.goForward(controller.currentNode!.children.first);
         }
         return KeyEventResult.handled;
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+        // TODO previous variation
+        return KeyEventResult.handled;
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+        // TODO next variation
+        return KeyEventResult.handled;
       }
     }
     return KeyEventResult.ignored;
@@ -224,15 +230,8 @@ class LinearChessMoveSequenceWidget extends StatelessWidget {
   }
 }
 
-class ChessMove extends StatelessWidget {
+class ChessMove extends StatefulWidget {
   final AnalysisChessBoardController analysisChessBoardController;
-  static const _mainLineMoveNumberTextStyle =
-      TextStyle(fontWeight: FontWeight.bold);
-  static const _mainLineMoveTextStyle = TextStyle();
-  static const _sideLineMoveNumberTextStyle =
-      TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
-  static const _sideLineMoveTextStyle = TextStyle(fontStyle: FontStyle.italic);
-
   final GameNode node;
   final Chess board;
 
@@ -245,37 +244,80 @@ class ChessMove extends StatelessWidget {
         super(key: key);
 
   @override
+  State<ChessMove> createState() => _ChessMoveState();
+}
+
+class _ChessMoveState extends State<ChessMove> {
+  static const _mainLineMoveNumberTextStyle =
+      TextStyle(fontWeight: FontWeight.bold);
+  static const _mainLineMoveTextStyle = TextStyle();
+  static const _sideLineMoveNumberTextStyle =
+      TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
+  static const _sideLineMoveTextStyle = TextStyle(fontStyle: FontStyle.italic);
+
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode(debugLabel: '_ChessMoveState ${widget.node.move}');
+    widget.analysisChessBoardController.addListener(_onBoardChanged);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    widget.analysisChessBoardController.removeListener(_onBoardChanged);
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChessMove oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    oldWidget.analysisChessBoardController.removeListener(_onBoardChanged);
+    widget.analysisChessBoardController.addListener(_onBoardChanged);
+  }
+
+  void _onBoardChanged() {
+    final selected =
+        widget.analysisChessBoardController.currentNode == widget.node;
+    if (selected) {
+      _focusNode.requestFocus();
+    }
+  }
+
+  void _onMoveSelected() {
+    widget.analysisChessBoardController.goTo(widget.node, widget.board);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: analysisChessBoardController.currentNode == node
-          ? Colors.black12
-          : null,
+    return InkWell(
+      focusNode: _focusNode,
+      onTap: _onMoveSelected,
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: () => analysisChessBoardController.goTo(node, board),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Show the move number indicator only for white moves and for
-              // first moves after a decision point
-              if (node.move!.color == Color.WHITE ||
-                  node.parent!.children.length > 1)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Text(
-                    node.move!.moveNumberIndicator,
-                    style: node.variationDepth == 0
-                        ? _mainLineMoveNumberTextStyle
-                        : _sideLineMoveNumberTextStyle,
-                  ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Show the move number indicator only for white moves and for
+            // first moves after a decision point
+            if (widget.node.move!.color == Color.WHITE ||
+                widget.node.parent!.children.length > 1)
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Text(
+                  widget.node.move!.moveNumberIndicator,
+                  style: widget.node.variationDepth == 0
+                      ? _mainLineMoveNumberTextStyle
+                      : _sideLineMoveNumberTextStyle,
                 ),
-              Text(node.move!.san,
-                  style: node.variationDepth == 0
-                      ? _mainLineMoveTextStyle
-                      : _sideLineMoveTextStyle),
-            ],
-          ),
+              ),
+            Text(widget.node.move!.san,
+                style: widget.node.variationDepth == 0
+                    ? _mainLineMoveTextStyle
+                    : _sideLineMoveTextStyle),
+          ],
         ),
       ),
     );
