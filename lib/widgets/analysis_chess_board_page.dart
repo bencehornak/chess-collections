@@ -226,7 +226,12 @@ class LinearChessMoveSequenceWidget extends StatelessWidget {
 
 class ChessMove extends StatelessWidget {
   final AnalysisChessBoardController analysisChessBoardController;
-  static const _moveNumberTextStyle = TextStyle(fontWeight: FontWeight.bold);
+  static const _mainLineMoveNumberTextStyle =
+      TextStyle(fontWeight: FontWeight.bold);
+  static const _mainLineMoveTextStyle = TextStyle();
+  static const _sideLineMoveNumberTextStyle =
+      TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
+  static const _sideLineMoveTextStyle = TextStyle(fontStyle: FontStyle.italic);
 
   final GameNode node;
   final Chess board;
@@ -260,10 +265,15 @@ class ChessMove extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     node.move!.moveNumberIndicator,
-                    style: _moveNumberTextStyle,
+                    style: node.variationDepth == 0
+                        ? _mainLineMoveNumberTextStyle
+                        : _sideLineMoveNumberTextStyle,
                   ),
                 ),
-              Text(node.move!.san),
+              Text(node.move!.san,
+                  style: node.variationDepth == 0
+                      ? _mainLineMoveTextStyle
+                      : _sideLineMoveTextStyle),
             ],
           ),
         ),
