@@ -62,10 +62,13 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
           builder: (context, state, _) => Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ChessBoard(
-                controller: controller.chessBoardController,
-                boardColor: BoardColor.brown,
-                boardOrientation: _boardOrientation,
+              Material(
+                elevation: 12,
+                child: ChessBoard(
+                  controller: controller.chessBoardController,
+                  boardColor: BoardColor.brown,
+                  boardOrientation: _boardOrientation,
+                ),
               ),
               Expanded(
                 child: ChessMoveHistory(
