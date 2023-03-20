@@ -5,8 +5,8 @@ import 'package:collection/collection.dart';
 import 'package:chess/chess.dart' as ch;
 
 class AnalysisChessBoardState {
-  GameWithVariations? game;
-  GameNode? currentNode;
+  ChessHalfMoveTree? game;
+  ChessHalfMoveTreeNode? currentNode;
   ChessBoardController chessBoardController;
   ch.State? _lastChessBoardState;
 
@@ -23,8 +23,8 @@ class AnalysisChessBoardState {
 
 class AnalysisChessBoardController
     extends ValueNotifier<AnalysisChessBoardState> {
-  GameWithVariations? get game => value.game;
-  GameNode? get currentNode => value.currentNode;
+  ChessHalfMoveTree? get game => value.game;
+  ChessHalfMoveTreeNode? get currentNode => value.currentNode;
   Chess? get board => value.chessBoardController.game;
   ChessBoardController get chessBoardController => value.chessBoardController;
 
@@ -38,14 +38,14 @@ class AnalysisChessBoardController
     super.dispose();
   }
 
-  void loadGame(GameWithVariations? game) {
+  void loadGame(ChessHalfMoveTree? game) {
     value._reset();
     value.game = game;
     value.currentNode = game?.rootNode;
     notifyListeners();
   }
 
-  void goTo(GameNode node, Chess board) {
+  void goTo(ChessHalfMoveTreeNode node, Chess board) {
     value.currentNode = node;
     value.chessBoardController.dispose();
     value.chessBoardController = ChessBoardController.fromGame(board);
@@ -62,7 +62,7 @@ class AnalysisChessBoardController
     }
 
     // If the user followed a line in the analysis, let's adjust currentNode to
-    // the corresponding GameNode
+    // the corresponding ChessHalfMoveTreeNode
     if (value.currentNode != null && board!.history.length >= 2) {
       final secondLastBoardState = board!.history[board!.history.length - 2];
       if (identical(value._lastChessBoardState, secondLastBoardState)) {
@@ -96,7 +96,7 @@ class AnalysisChessBoardController
     notifyListeners();
   }
 
-  void goForward(GameNode child) {
+  void goForward(ChessHalfMoveTreeNode child) {
     assert(identical(child.parent, currentNode));
 
     _skipNextOnBoardChange = true;

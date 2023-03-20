@@ -7,7 +7,6 @@ import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'package:logging/logging.dart';
 
 import 'import_pgn_dialog.dart';
-import '../util/linear_chess_sequence.dart';
 
 final _logger = Logger('home_page');
 
@@ -21,7 +20,7 @@ class AnalysisChessBoardPage extends StatefulWidget {
 }
 
 class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
-  GameWithVariations? game;
+  ChessHalfMoveTree? game;
   late AnalysisChessBoardController controller;
   bool _immportPgnDialogOpen = false;
   late FocusNode _focusNode;
@@ -95,8 +94,8 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     controller.loadGame(importedGame?.firstOrNull);
   }
 
-  Future<List<GameWithVariations>?> _showImportDialogPgn() {
-    return showDialog<List<GameWithVariations>>(
+  Future<List<ChessHalfMoveTree>?> _showImportDialogPgn() {
+    return showDialog<List<ChessHalfMoveTree>>(
       context: context,
       builder: (BuildContext context) => const ImportPgnDialog(),
     );
@@ -186,10 +185,10 @@ class ChessMoveHistory extends StatelessWidget {
   }
 
   List<Widget> _generateRows() {
-    List<LinearChessMoveSequence> linearChessMoveSequences =
-        breakDownToLinearChessSequences(analysisChessBoardController.game!);
+    final linearChessMoveSequences =
+        LinearChessMoveSequences.fromGame(analysisChessBoardController.game!, captureBoards: true);
 
-    return linearChessMoveSequences
+    return linearChessMoveSequences.sequences
         .map((item) => LinearChessMoveSequenceWidget(
               analysisChessBoardController: analysisChessBoardController,
               linearChessMoveSequence: item,
@@ -222,7 +221,7 @@ class LinearChessMoveSequenceWidget extends StatelessWidget {
           return ChessMove(
             analysisChessBoardController: analysisChessBoardController,
             node: item.node,
-            board: item.board,
+            board: item.board!,
           );
         }).toList(),
       ),
@@ -232,7 +231,7 @@ class LinearChessMoveSequenceWidget extends StatelessWidget {
 
 class ChessMove extends StatefulWidget {
   final AnalysisChessBoardController analysisChessBoardController;
-  final GameNode node;
+  final ChessHalfMoveTreeNode node;
   final Chess board;
 
   ChessMove({
