@@ -185,8 +185,9 @@ class ChessMoveHistory extends StatelessWidget {
   }
 
   List<Widget> _generateRows() {
-    final linearChessMoveSequences =
-        LinearChessMoveSequences.fromGame(analysisChessBoardController.game!, captureBoards: true);
+    final linearChessMoveSequences = LinearChessMoveSequences.fromGame(
+        analysisChessBoardController.game!,
+        captureBoards: true);
 
     return linearChessMoveSequences.sequences
         .map((item) => LinearChessMoveSequenceWidget(
@@ -253,6 +254,7 @@ class _ChessMoveState extends State<ChessMove> {
   static const _sideLineMoveNumberTextStyle =
       TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
   static const _sideLineMoveTextStyle = TextStyle(fontStyle: FontStyle.italic);
+  static const _commentTextStyle = TextStyle(fontStyle: FontStyle.italic);
 
   late FocusNode _focusNode;
 
@@ -317,6 +319,9 @@ class _ChessMoveState extends State<ChessMove> {
                   style: widget.node.variationDepth == 0
                       ? _mainLineMoveTextStyle
                       : _sideLineMoveTextStyle),
+              if (widget.node.move!.comment != null)
+                Text('{${widget.node.move!.comment!}}',
+                    style: _commentTextStyle),
             ],
           ),
         ),
