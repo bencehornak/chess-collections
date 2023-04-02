@@ -185,11 +185,14 @@ class ChessMoveHistory extends StatelessWidget {
   }
 
   List<Widget> _generateRows() {
-    final linearChessMoveSequences = LinearChessMoveSequences.fromGame(
+    final linearMoveSequenceTree = LinearMoveSequenceTree.fromGame(
         analysisChessBoardController.game!,
         captureBoards: true);
 
-    return linearChessMoveSequences.sequences
+    final linearMoveSequences = <LinearMoveSequenceTreeNode>[];
+    linearMoveSequenceTree.traverse((node) => linearMoveSequences.add(node));
+
+    return linearMoveSequences
         .map((item) => LinearChessMoveSequenceWidget(
               analysisChessBoardController: analysisChessBoardController,
               linearChessMoveSequence: item,
@@ -200,7 +203,7 @@ class ChessMoveHistory extends StatelessWidget {
 
 class LinearChessMoveSequenceWidget extends StatelessWidget {
   final AnalysisChessBoardController analysisChessBoardController;
-  final LinearChessMoveSequence linearChessMoveSequence;
+  final LinearMoveSequenceTreeNode linearChessMoveSequence;
 
   const LinearChessMoveSequenceWidget({
     required this.analysisChessBoardController,
