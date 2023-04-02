@@ -181,8 +181,11 @@ class ChessGameMetadata extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String formatPlayers(List<String> players) =>
-        players.isEmpty ? 'unknown' : players.join(', ');
+    String formatPlayers(List<String> players, String? elo) {
+      final playerNames = players.isEmpty ? 'unknown' : players.join(', ');
+      // \u{00A0} means non-breaking space
+      return '$playerNames${elo != null ? '\u{00A0}($elo)' : ''}';
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -190,7 +193,7 @@ class ChessGameMetadata extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            '${formatPlayers(game.tagWhite)} vs ${formatPlayers(game.tagBlack)}',
+            '${formatPlayers(game.tagWhite, game.tags['WhiteElo']?.firstOrNull)} vs ${formatPlayers(game.tagBlack, game.tags['BlackElo']?.firstOrNull)}',
             style: _playerNamesStyle,
           ),
         ],
