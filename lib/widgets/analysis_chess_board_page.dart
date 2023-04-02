@@ -22,7 +22,7 @@ class AnalysisChessBoardPage extends StatefulWidget {
 class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   ChessHalfMoveTree? game;
   late AnalysisChessBoardController controller;
-  bool _immportPgnDialogOpen = false;
+  bool _importPgnDialogOpen = false;
   late FocusNode _focusNode;
   PlayerColor _boardOrientation = PlayerColor.white;
 
@@ -82,13 +82,13 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   }
 
   void _importPgn() async {
-    if (_immportPgnDialogOpen) {
+    if (_importPgnDialogOpen) {
       _logger.info('ImportPgnDialog is already open, ignoring request');
       return;
     }
-    setState(() => _immportPgnDialogOpen = true);
+    setState(() => _importPgnDialogOpen = true);
     final importedGame = await _showImportDialogPgn();
-    setState(() => _immportPgnDialogOpen = false);
+    setState(() => _importPgnDialogOpen = false);
     _logger.info(
         'The imported games are (choosing the first game):\n$importedGame');
     controller.loadGame(importedGame?.firstOrNull);
