@@ -69,11 +69,27 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
                   boardOrientation: _boardOrientation,
                 ),
               ),
-              Expanded(
-                child: ChessMoveHistory(
-                  analysisChessBoardController: controller,
+              if (controller.game != null)
+                Expanded(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 120),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ChessGameMetadata(game: controller.game!),
+                            ChessMoveHistory(
+                              analysisChessBoardController: controller,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -157,6 +173,32 @@ class ChessCollectionsAppBar extends AppBar {
         );
 }
 
+class ChessGameMetadata extends StatelessWidget {
+  static const _playerNamesStyle =
+      TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
+  final ChessHalfMoveTree game;
+  const ChessGameMetadata({required this.game, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    String formatPlayers(List<String> players) =>
+        players.isEmpty ? 'unknown' : players.join(', ');
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            '${formatPlayers(game.tagWhite)} vs ${formatPlayers(game.tagBlack)}',
+            style: _playerNamesStyle,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class ChessMoveHistory extends StatelessWidget {
   final AnalysisChessBoardController analysisChessBoardController;
 
@@ -169,18 +211,9 @@ class ChessMoveHistory extends StatelessWidget {
   Widget build(BuildContext context) {
     return analysisChessBoardController.game == null
         ? Container()
-        : ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 120),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: _generateRows(),
-                ),
-              ),
-            ),
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _generateRows(),
           );
   }
 
