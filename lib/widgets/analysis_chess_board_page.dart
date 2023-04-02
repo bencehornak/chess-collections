@@ -306,10 +306,11 @@ class ChessMove extends StatefulWidget {
 class _ChessMoveState extends State<ChessMove> {
   static const _mainLineMoveNumberTextStyle =
       TextStyle(fontWeight: FontWeight.bold);
-  static const _mainLineMoveTextStyle = TextStyle();
+  static const _mainLineMoveTextStyle =
+      TextStyle(decoration: TextDecoration.underline);
   static const _sideLineMoveNumberTextStyle =
-      TextStyle(fontWeight: FontWeight.bold, fontStyle: FontStyle.italic);
-  static const _sideLineMoveTextStyle = TextStyle(fontStyle: FontStyle.italic);
+      TextStyle(fontWeight: FontWeight.bold);
+  static const _sideLineMoveTextStyle = TextStyle();
   static const _commentTextStyle = TextStyle(fontStyle: FontStyle.italic);
 
   late FocusNode _focusNode;
@@ -376,8 +377,11 @@ class _ChessMoveState extends State<ChessMove> {
                       ? _mainLineMoveTextStyle
                       : _sideLineMoveTextStyle),
               if (widget.node.move!.comment != null)
-                Text('{${widget.node.move!.comment!}}',
-                    style: _commentTextStyle),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Text(widget.node.move!.comment!,
+                      style: _commentTextStyle),
+                ),
             ],
           ),
         ),
