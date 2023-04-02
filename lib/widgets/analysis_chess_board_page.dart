@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
 import 'package:logging/logging.dart';
 
+import '../util/constants.dart';
 import 'import_pgn_dialog.dart';
 
 final _logger = Logger('home_page');
@@ -80,7 +81,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            ChessGameMetadata(game: controller.game!),
+                            ChessGameMetadata(tags: controller.game!.tags),
                             ChessMoveHistory(
                               analysisChessBoardController: controller,
                             ),
@@ -176,8 +177,14 @@ class ChessCollectionsAppBar extends AppBar {
 class ChessGameMetadata extends StatelessWidget {
   static const _playerNamesStyle =
       TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
-  final ChessHalfMoveTree game;
-  const ChessGameMetadata({required this.game, Key? key}) : super(key: key);
+  static const _additionalTagsStyle = TextStyle(fontSize: 16);
+  final ChessGameTags tags;
+  const ChessGameMetadata({required this.tags, Key? key}) : super(key: key);
+
+  String _capitalizeFirstLetter(String string) {
+    if (string.isEmpty) return '';
+    return string.substring(0, 1).toUpperCase() + string.substring(1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -193,9 +200,19 @@ class ChessGameMetadata extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            '${formatPlayers(game.tagWhite, game.tags['WhiteElo']?.firstOrNull)} vs ${formatPlayers(game.tagBlack, game.tags['BlackElo']?.firstOrNull)}',
+            '${formatPlayers(tags.white, tags.whiteElo)} vs ${formatPlayers(tags.black, tags.blackElo)}',
             style: _playerNamesStyle,
           ),
+          Text(
+            _capitalizeFirstLetter([
+              if (tags.event != null) 'event: ${tags.event}',
+              if (tags.round != null) 'round: ${tags.round}',
+              if (tags.site != null) 'site: ${tags.site}',
+              if (tags.date != null)
+                'date: ${Constants.dateFormat.format(tags.date!)}',
+            ].join(', ')),
+            style: _additionalTagsStyle,
+          )
         ],
       ),
     );

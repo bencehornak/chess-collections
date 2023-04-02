@@ -48,6 +48,7 @@ dependencies:
   chess: ^0.8.0
   logging: ^1.1.1
   collection: ^1.17.0
+  intl: ^0.18.0
 
 dev_dependencies:
   flutter_test:
