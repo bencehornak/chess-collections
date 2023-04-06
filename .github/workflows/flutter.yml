@@ -1,5 +1,6 @@
 name: Flutter pipeline
 on: [push]
+concurrency: build
 jobs:
   build:
     runs-on: ubuntu-latest
