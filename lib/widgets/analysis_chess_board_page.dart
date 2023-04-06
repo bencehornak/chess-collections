@@ -67,27 +67,9 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
                 controller: controller,
                 boardOrientation: _boardOrientation,
               ),
-              if (controller.game != null)
-                Expanded(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minWidth: 120),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            ChessGameMetadata(tags: controller.game!.tags),
-                            ChessMoveHistory(
-                              analysisChessBoardController: controller,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+              ExpandedVerticalGameMetadataAndHistoryPanel(
+                controller: controller,
+              ),
             ],
           ),
         ),
@@ -202,6 +184,41 @@ class MaterialChessBoard extends StatelessWidget {
     };
     return (map[color] ?? map[VisualAnnotationColor.blue]!)
         .withOpacity(opacity);
+  }
+}
+
+class ExpandedVerticalGameMetadataAndHistoryPanel extends StatelessWidget {
+  final AnalysisChessBoardController controller;
+
+  const ExpandedVerticalGameMetadataAndHistoryPanel({
+    super.key,
+    required this.controller,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: controller.game == null
+          ? Container()
+          : ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 120),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ChessGameMetadata(tags: controller.game!.tags),
+                      ChessMoveHistory(
+                        analysisChessBoardController: controller,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+    );
   }
 }
 
