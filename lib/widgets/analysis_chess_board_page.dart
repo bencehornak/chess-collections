@@ -75,11 +75,24 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
                             (e) => BoardArrow(
                               from: Chess.algebraic(e.from),
                               to: Chess.algebraic(e.to),
-                              color: _visualAnnotationColorToColor(e.color),
+                              color: _visualAnnotationColorToColor(e.color,
+                                  opacity: .5),
                             ),
                           )
                           .toList() ??
                       [],
+                  highlightedSquares:
+                      controller.currentNode?.move?.visualAnnotations
+                              .whereType<HighlightedSquare>()
+                              .map(
+                                (e) => BoardHighlightedSquare(
+                                  Chess.algebraic(e.square),
+                                  color: _visualAnnotationColorToColor(e.color,
+                                      opacity: .5),
+                                ),
+                              )
+                              .toList() ??
+                          [],
                 ),
               ),
               if (controller.game != null)
@@ -110,14 +123,16 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     );
   }
 
-  static Color _visualAnnotationColorToColor(VisualAnnotationColor color) {
+  static Color _visualAnnotationColorToColor(VisualAnnotationColor color,
+      {required double opacity}) {
     final map = <VisualAnnotationColor, Color>{
       VisualAnnotationColor.blue: Colors.blue.shade400,
       VisualAnnotationColor.green: Colors.green.shade400,
       VisualAnnotationColor.red: Colors.red.shade400,
       VisualAnnotationColor.yellow: Colors.yellow.shade400,
     };
-    return (map[color] ?? map[VisualAnnotationColor.blue]!).withOpacity(0.5);
+    return (map[color] ?? map[VisualAnnotationColor.blue]!)
+        .withOpacity(opacity);
   }
 
   void _importPgn() async {
