@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:chess_collections/widgets/analysis_chess_board_controller.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:collection/collection.dart';
@@ -58,17 +60,24 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       body: Focus(
         focusNode: _focusNode,
         onKeyEvent: _onKeyEvent,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            MaterialChessBoard(
-              controller: controller,
-              boardOrientation: _boardOrientation,
-            ),
-            ExpandedVerticalGameMetadataAndHistoryPanel(
-              controller: controller,
-            ),
-          ],
+        child: LayoutBuilder(
+          builder: (context, constraintType) => Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                width:
+                    min(constraintType.maxHeight, .6 * constraintType.maxWidth),
+                alignment: Alignment.center,
+                child: MaterialChessBoard(
+                  controller: controller,
+                  boardOrientation: _boardOrientation,
+                ),
+              ),
+              ExpandedVerticalGameMetadataAndHistoryPanel(
+                controller: controller,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -139,38 +148,41 @@ class MaterialChessBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      elevation: 12,
-      child: ValueListenableBuilder(
-        valueListenable: controller,
-        builder: (context, value, child) => ChessBoard(
-          controller: controller.chessBoardController,
-          boardColor: BoardColor.brown,
-          boardOrientation: boardOrientation,
-          lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
-          arrows: value.currentNode?.move?.visualAnnotations
-                  .whereType<Arrow>()
-                  .map(
-                    (e) => BoardArrow(
-                      from: Chess.algebraic(e.from),
-                      to: Chess.algebraic(e.to),
-                      color:
-                          _visualAnnotationColorToColor(e.color, opacity: .5),
-                    ),
-                  )
-                  .toList() ??
-              [],
-          highlightedSquares: value.currentNode?.move?.visualAnnotations
-                  .whereType<HighlightedSquare>()
-                  .map(
-                    (e) => BoardHighlightedSquare(
-                      Chess.algebraic(e.square),
-                      color:
-                          _visualAnnotationColorToColor(e.color, opacity: .5),
-                    ),
-                  )
-                  .toList() ??
-              [],
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Material(
+        elevation: 12,
+        child: ValueListenableBuilder(
+          valueListenable: controller,
+          builder: (context, value, child) => ChessBoard(
+            controller: controller.chessBoardController,
+            boardColor: BoardColor.brown,
+            boardOrientation: boardOrientation,
+            lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
+            arrows: value.currentNode?.move?.visualAnnotations
+                    .whereType<Arrow>()
+                    .map(
+                      (e) => BoardArrow(
+                        from: Chess.algebraic(e.from),
+                        to: Chess.algebraic(e.to),
+                        color:
+                            _visualAnnotationColorToColor(e.color, opacity: .5),
+                      ),
+                    )
+                    .toList() ??
+                [],
+            highlightedSquares: value.currentNode?.move?.visualAnnotations
+                    .whereType<HighlightedSquare>()
+                    .map(
+                      (e) => BoardHighlightedSquare(
+                        Chess.algebraic(e.square),
+                        color:
+                            _visualAnnotationColorToColor(e.color, opacity: .5),
+                      ),
+                    )
+                    .toList() ??
+                [],
+          ),
         ),
       ),
     );
