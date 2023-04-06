@@ -108,7 +108,7 @@ packages:
     description:
       path: "."
       ref: master
-      resolved-ref: ae5838685fb16e73289c4440dd2ca44aa72d026c
+      resolved-ref: "9e9aad74b7802144451f1da4ac592898d901f366"
       url: "https://github.com/bencehornak/flutter_chess_board"
     source: git
     version: "1.0.1"

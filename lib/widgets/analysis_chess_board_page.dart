@@ -69,6 +69,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
                   controller: controller.chessBoardController,
                   boardColor: BoardColor.brown,
                   boardOrientation: _boardOrientation,
+                  lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
                   arrows: controller.currentNode?.move?.visualAnnotations
                           .whereType<Arrow>()
                           .map(
