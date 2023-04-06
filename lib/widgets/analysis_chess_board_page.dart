@@ -3,8 +3,9 @@ import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_chess_board/flutter_chess_board.dart';
+import 'package:flutter_chess_board/flutter_chess_board.dart' hide Color;
 import 'package:logging/logging.dart';
+import 'package:chess/chess.dart' as ch;
 
 import '../util/constants.dart';
 import 'import_pgn_dialog.dart';
@@ -68,6 +69,17 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
                   controller: controller.chessBoardController,
                   boardColor: BoardColor.brown,
                   boardOrientation: _boardOrientation,
+                  arrows: controller.currentNode?.move?.visualAnnotations
+                          .whereType<Arrow>()
+                          .map(
+                            (e) => BoardArrow(
+                              from: Chess.algebraic(e.from),
+                              to: Chess.algebraic(e.to),
+                              color: _visualAnnotationColorToColor(e.color),
+                            ),
+                          )
+                          .toList() ??
+                      [],
                 ),
               ),
               if (controller.game != null)
@@ -96,6 +108,16 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
         ),
       ),
     );
+  }
+
+  static Color _visualAnnotationColorToColor(VisualAnnotationColor color) {
+    final map = <VisualAnnotationColor, Color>{
+      VisualAnnotationColor.blue: Colors.blue.shade400,
+      VisualAnnotationColor.green: Colors.green.shade400,
+      VisualAnnotationColor.red: Colors.red.shade400,
+      VisualAnnotationColor.yellow: Colors.yellow.shade400,
+    };
+    return (map[color] ?? map[VisualAnnotationColor.blue]!).withOpacity(0.5);
   }
 
   void _importPgn() async {
@@ -361,7 +383,7 @@ class _ChessMoveState extends State<ChessMove> {
             children: [
               // Show the move number indicator only for white moves and for
               // first moves after a decision point
-              if (widget.node.move!.color == Color.WHITE ||
+              if (widget.node.move!.color == ch.Color.WHITE ||
                   widget.node.parent!.children.length > 1)
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
