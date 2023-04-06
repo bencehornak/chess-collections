@@ -58,20 +58,17 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       body: Focus(
         focusNode: _focusNode,
         onKeyEvent: _onKeyEvent,
-        child: ValueListenableBuilder<AnalysisChessBoardState>(
-          valueListenable: controller,
-          builder: (context, state, _) => Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              MaterialChessBoard(
-                controller: controller,
-                boardOrientation: _boardOrientation,
-              ),
-              ExpandedVerticalGameMetadataAndHistoryPanel(
-                controller: controller,
-              ),
-            ],
-          ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            MaterialChessBoard(
+              controller: controller,
+              boardOrientation: _boardOrientation,
+            ),
+            ExpandedVerticalGameMetadataAndHistoryPanel(
+              controller: controller,
+            ),
+          ],
         ),
       ),
     );
@@ -144,32 +141,37 @@ class MaterialChessBoard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       elevation: 12,
-      child: ChessBoard(
-        controller: controller.chessBoardController,
-        boardColor: BoardColor.brown,
-        boardOrientation: boardOrientation,
-        lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
-        arrows: controller.currentNode?.move?.visualAnnotations
-                .whereType<Arrow>()
-                .map(
-                  (e) => BoardArrow(
-                    from: Chess.algebraic(e.from),
-                    to: Chess.algebraic(e.to),
-                    color: _visualAnnotationColorToColor(e.color, opacity: .5),
-                  ),
-                )
-                .toList() ??
-            [],
-        highlightedSquares: controller.currentNode?.move?.visualAnnotations
-                .whereType<HighlightedSquare>()
-                .map(
-                  (e) => BoardHighlightedSquare(
-                    Chess.algebraic(e.square),
-                    color: _visualAnnotationColorToColor(e.color, opacity: .5),
-                  ),
-                )
-                .toList() ??
-            [],
+      child: ValueListenableBuilder(
+        valueListenable: controller,
+        builder: (context, value, child) => ChessBoard(
+          controller: controller.chessBoardController,
+          boardColor: BoardColor.brown,
+          boardOrientation: boardOrientation,
+          lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
+          arrows: value.currentNode?.move?.visualAnnotations
+                  .whereType<Arrow>()
+                  .map(
+                    (e) => BoardArrow(
+                      from: Chess.algebraic(e.from),
+                      to: Chess.algebraic(e.to),
+                      color:
+                          _visualAnnotationColorToColor(e.color, opacity: .5),
+                    ),
+                  )
+                  .toList() ??
+              [],
+          highlightedSquares: value.currentNode?.move?.visualAnnotations
+                  .whereType<HighlightedSquare>()
+                  .map(
+                    (e) => BoardHighlightedSquare(
+                      Chess.algebraic(e.square),
+                      color:
+                          _visualAnnotationColorToColor(e.color, opacity: .5),
+                    ),
+                  )
+                  .toList() ??
+              [],
+        ),
       ),
     );
   }
@@ -197,27 +199,32 @@ class ExpandedVerticalGameMetadataAndHistoryPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: controller.game == null
-          ? Container()
-          : ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 120),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ChessGameMetadata(tags: controller.game!.tags),
-                      ChessMoveHistory(
-                        analysisChessBoardController: controller,
-                      ),
-                    ],
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) => Expanded(
+        child: value.game == null
+            ? Container()
+            : ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 120),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ChessGameMetadata(
+                          controller: controller,
+                        ),
+                        ChessMoveHistory(
+                          analysisChessBoardController: controller,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
+      ),
     );
   }
 }
@@ -249,8 +256,9 @@ class ChessGameMetadata extends StatelessWidget {
   static const _playerNamesStyle =
       TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
   static const _additionalTagsStyle = TextStyle(fontSize: 16);
-  final ChessGameTags tags;
-  const ChessGameMetadata({required this.tags, Key? key}) : super(key: key);
+  final AnalysisChessBoardController controller;
+  const ChessGameMetadata({required this.controller, Key? key})
+      : super(key: key);
 
   String _capitalizeFirstLetter(String string) {
     if (string.isEmpty) return '';
@@ -265,27 +273,33 @@ class ChessGameMetadata extends StatelessWidget {
       return '$playerNames${elo != null ? '\u{00A0}($elo)' : ''}';
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            '${formatPlayers(tags.white, tags.whiteElo)} vs ${formatPlayers(tags.black, tags.blackElo)}',
-            style: _playerNamesStyle,
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, value, child) {
+        final tags = value.game!.tags;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                '${formatPlayers(tags.white, tags.whiteElo)} vs ${formatPlayers(tags.black, tags.blackElo)}',
+                style: _playerNamesStyle,
+              ),
+              Text(
+                _capitalizeFirstLetter([
+                  if (tags.event != null) 'event: ${tags.event}',
+                  if (tags.round != null) 'round: ${tags.round}',
+                  if (tags.site != null) 'site: ${tags.site}',
+                  if (tags.date != null)
+                    'date: ${Constants.dateFormat.format(tags.date!)}',
+                ].join(', ')),
+                style: _additionalTagsStyle,
+              )
+            ],
           ),
-          Text(
-            _capitalizeFirstLetter([
-              if (tags.event != null) 'event: ${tags.event}',
-              if (tags.round != null) 'round: ${tags.round}',
-              if (tags.site != null) 'site: ${tags.site}',
-              if (tags.date != null)
-                'date: ${Constants.dateFormat.format(tags.date!)}',
-            ].join(', ')),
-            style: _additionalTagsStyle,
-          )
-        ],
-      ),
+        );
+      },
     );
   }
 }
