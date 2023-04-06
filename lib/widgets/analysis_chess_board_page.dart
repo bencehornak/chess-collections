@@ -63,38 +63,9 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
           builder: (context, state, _) => Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Material(
-                elevation: 12,
-                child: ChessBoard(
-                  controller: controller.chessBoardController,
-                  boardColor: BoardColor.brown,
-                  boardOrientation: _boardOrientation,
-                  lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
-                  arrows: controller.currentNode?.move?.visualAnnotations
-                          .whereType<Arrow>()
-                          .map(
-                            (e) => BoardArrow(
-                              from: Chess.algebraic(e.from),
-                              to: Chess.algebraic(e.to),
-                              color: _visualAnnotationColorToColor(e.color,
-                                  opacity: .5),
-                            ),
-                          )
-                          .toList() ??
-                      [],
-                  highlightedSquares:
-                      controller.currentNode?.move?.visualAnnotations
-                              .whereType<HighlightedSquare>()
-                              .map(
-                                (e) => BoardHighlightedSquare(
-                                  Chess.algebraic(e.square),
-                                  color: _visualAnnotationColorToColor(e.color,
-                                      opacity: .5),
-                                ),
-                              )
-                              .toList() ??
-                          [],
-                ),
+              MaterialChessBoard(
+                controller: controller,
+                boardOrientation: _boardOrientation,
               ),
               if (controller.game != null)
                 Expanded(
@@ -122,18 +93,6 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
         ),
       ),
     );
-  }
-
-  static Color _visualAnnotationColorToColor(VisualAnnotationColor color,
-      {required double opacity}) {
-    final map = <VisualAnnotationColor, Color>{
-      VisualAnnotationColor.blue: Colors.blue.shade400,
-      VisualAnnotationColor.green: Colors.green.shade400,
-      VisualAnnotationColor.red: Colors.red.shade400,
-      VisualAnnotationColor.yellow: Colors.yellow.shade400,
-    };
-    return (map[color] ?? map[VisualAnnotationColor.blue]!)
-        .withOpacity(opacity);
   }
 
   void _importPgn() async {
@@ -186,6 +145,63 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       }
     }
     return KeyEventResult.ignored;
+  }
+}
+
+class MaterialChessBoard extends StatelessWidget {
+  final AnalysisChessBoardController controller;
+  final PlayerColor boardOrientation;
+
+  const MaterialChessBoard({
+    super.key,
+    required this.controller,
+    required this.boardOrientation,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 12,
+      child: ChessBoard(
+        controller: controller.chessBoardController,
+        boardColor: BoardColor.brown,
+        boardOrientation: boardOrientation,
+        lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
+        arrows: controller.currentNode?.move?.visualAnnotations
+                .whereType<Arrow>()
+                .map(
+                  (e) => BoardArrow(
+                    from: Chess.algebraic(e.from),
+                    to: Chess.algebraic(e.to),
+                    color: _visualAnnotationColorToColor(e.color, opacity: .5),
+                  ),
+                )
+                .toList() ??
+            [],
+        highlightedSquares: controller.currentNode?.move?.visualAnnotations
+                .whereType<HighlightedSquare>()
+                .map(
+                  (e) => BoardHighlightedSquare(
+                    Chess.algebraic(e.square),
+                    color: _visualAnnotationColorToColor(e.color, opacity: .5),
+                  ),
+                )
+                .toList() ??
+            [],
+      ),
+    );
+  }
+
+  static Color _visualAnnotationColorToColor(VisualAnnotationColor color,
+      {required double opacity}) {
+    final map = <VisualAnnotationColor, Color>{
+      VisualAnnotationColor.blue: Colors.blue.shade400,
+      VisualAnnotationColor.green: Colors.green.shade400,
+      VisualAnnotationColor.red: Colors.red.shade400,
+      VisualAnnotationColor.yellow: Colors.yellow.shade400,
+    };
+    return (map[color] ?? map[VisualAnnotationColor.blue]!)
+        .withOpacity(opacity);
   }
 }
 
