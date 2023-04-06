@@ -64,11 +64,10 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
           builder: (context, constraintType) => Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width:
-                    min(constraintType.maxHeight, .6 * constraintType.maxWidth),
-                alignment: Alignment.center,
-                child: MaterialChessBoard(
+              SizedBox(
+                width: min(constraintType.maxHeight - 80,
+                    .6 * constraintType.maxWidth),
+                child: MaterialChessBoardWithButtons(
                   controller: controller,
                   boardOrientation: _boardOrientation,
                 ),
@@ -136,6 +135,39 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   }
 }
 
+class MaterialChessBoardWithButtons extends StatelessWidget {
+  final AnalysisChessBoardController controller;
+  final PlayerColor boardOrientation;
+
+  const MaterialChessBoardWithButtons({
+    super.key,
+    required this.controller,
+    required this.boardOrientation,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          MaterialChessBoard(
+            controller: controller,
+            boardOrientation: boardOrientation,
+          ),
+          const SizedBox(
+            height: 24,
+          ),
+          MaterialControllerButtons(
+            controller: controller,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class MaterialChessBoard extends StatelessWidget {
   final AnalysisChessBoardController controller;
   final PlayerColor boardOrientation;
@@ -148,41 +180,38 @@ class MaterialChessBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Material(
-        elevation: 12,
-        child: ValueListenableBuilder(
-          valueListenable: controller,
-          builder: (context, value, child) => ChessBoard(
-            controller: controller.chessBoardController,
-            boardColor: BoardColor.brown,
-            boardOrientation: boardOrientation,
-            lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
-            arrows: value.currentNode?.move?.visualAnnotations
-                    .whereType<Arrow>()
-                    .map(
-                      (e) => BoardArrow(
-                        from: Chess.algebraic(e.from),
-                        to: Chess.algebraic(e.to),
-                        color:
-                            _visualAnnotationColorToColor(e.color, opacity: .5),
-                      ),
-                    )
-                    .toList() ??
-                [],
-            highlightedSquares: value.currentNode?.move?.visualAnnotations
-                    .whereType<HighlightedSquare>()
-                    .map(
-                      (e) => BoardHighlightedSquare(
-                        Chess.algebraic(e.square),
-                        color:
-                            _visualAnnotationColorToColor(e.color, opacity: .5),
-                      ),
-                    )
-                    .toList() ??
-                [],
-          ),
+    return Material(
+      elevation: 12,
+      child: ValueListenableBuilder(
+        valueListenable: controller,
+        builder: (context, value, child) => ChessBoard(
+          controller: controller.chessBoardController,
+          boardColor: BoardColor.brown,
+          boardOrientation: boardOrientation,
+          lastMoveHighlightColor: Colors.yellow.withOpacity(.3),
+          arrows: value.currentNode?.move?.visualAnnotations
+                  .whereType<Arrow>()
+                  .map(
+                    (e) => BoardArrow(
+                      from: Chess.algebraic(e.from),
+                      to: Chess.algebraic(e.to),
+                      color:
+                          _visualAnnotationColorToColor(e.color, opacity: .5),
+                    ),
+                  )
+                  .toList() ??
+              [],
+          highlightedSquares: value.currentNode?.move?.visualAnnotations
+                  .whereType<HighlightedSquare>()
+                  .map(
+                    (e) => BoardHighlightedSquare(
+                      Chess.algebraic(e.square),
+                      color:
+                          _visualAnnotationColorToColor(e.color, opacity: .5),
+                    ),
+                  )
+                  .toList() ??
+              [],
         ),
       ),
     );
@@ -198,6 +227,63 @@ class MaterialChessBoard extends StatelessWidget {
     };
     return (map[color] ?? map[VisualAnnotationColor.blue]!)
         .withOpacity(opacity);
+  }
+}
+
+class MaterialControllerButtons extends StatelessWidget {
+  final AnalysisChessBoardController controller;
+
+  const MaterialControllerButtons({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 12,
+      children: [
+        MaterialControllerButton(
+          icon: Icons.arrow_left,
+          onPressed: _goBackIfPossible,
+        ),
+        MaterialControllerButton(
+          icon: Icons.arrow_right,
+          onPressed: _goForward,
+        ),
+      ],
+    );
+  }
+
+  void _goBackIfPossible() {
+    controller.goBackIfPossible();
+  }
+
+  void _goForward() {
+    controller.goForward(controller.currentNode!.children.first);
+  }
+}
+
+class MaterialControllerButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  const MaterialControllerButton(
+      {super.key, required this.icon, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colors = Theme.of(context).colorScheme;
+    return Ink(
+      decoration: ShapeDecoration(
+        color: colors.primary,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8))),
+      ),
+      child: IconButton(
+        icon: Icon(icon),
+        color: colors.inversePrimary,
+        onPressed: onPressed,
+      ),
+    );
   }
 }
 
