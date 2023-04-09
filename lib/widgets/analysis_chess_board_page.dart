@@ -27,7 +27,7 @@ class AnalysisChessBoardPage extends StatefulWidget {
 class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   ChessHalfMoveTree? game;
   late AnalysisChessBoardController controller;
-  bool _importPgnDialogOpen = false;
+  bool _openFileInProgress = false;
   PlayerColor _boardOrientation = PlayerColor.white;
 
   @override
@@ -48,16 +48,17 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
         controller: controller,
         boardOrientation: _boardOrientation,
         onPgnImportPressed: _importPgn,
+        openFileInProgress: _openFileInProgress,
       ),
     );
   }
 
   void _importPgn() async {
-    if (_importPgnDialogOpen) {
+    if (_openFileInProgress) {
       _logger.info('ImportPgnDialog is already open, ignoring request');
       return;
     }
-    setState(() => _importPgnDialogOpen = true);
+    setState(() => _openFileInProgress = true);
     List<ChessHalfMoveTree>? importedGames;
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -75,7 +76,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       _showError(error);
     }
 
-    setState(() => _importPgnDialogOpen = false);
+    setState(() => _openFileInProgress = false);
     _logger.info(
         'The imported games are (choosing the first game):\n$importedGames');
     controller.loadGame(importedGames?.firstOrNull);
@@ -112,11 +113,13 @@ class AppContent extends StatefulWidget {
   final AnalysisChessBoardController controller;
   final PlayerColor boardOrientation;
   final VoidCallback onPgnImportPressed;
+  final bool openFileInProgress;
 
   const AppContent({
     required this.controller,
     required this.boardOrientation,
     required this.onPgnImportPressed,
+    required this.openFileInProgress,
     super.key,
   });
 
@@ -167,9 +170,12 @@ class _AppContentState extends State<AppContent> {
               chessBoardFlex: 0,
             ),
           ),
-          SidePanel(
-            controller: widget.controller,
-            onPgnImportPressed: widget.onPgnImportPressed,
+          Expanded(
+            child: SidePanel(
+              controller: widget.controller,
+              onPgnImportPressed: widget.onPgnImportPressed,
+              openFileInProgress: widget.openFileInProgress,
+            ),
           ),
         ],
       );
@@ -190,9 +196,12 @@ class _AppContentState extends State<AppContent> {
             indent: 24,
             endIndent: 24,
           ),
-          SidePanel(
-            controller: widget.controller,
-            onPgnImportPressed: widget.onPgnImportPressed,
+          Expanded(
+            child: SidePanel(
+              controller: widget.controller,
+              onPgnImportPressed: widget.onPgnImportPressed,
+              openFileInProgress: widget.openFileInProgress,
+            ),
           ),
         ],
       );
@@ -384,26 +393,40 @@ class MaterialControllerButton extends StatelessWidget {
 class SidePanel extends StatelessWidget {
   final AnalysisChessBoardController controller;
   final VoidCallback onPgnImportPressed;
+  final bool openFileInProgress;
 
   const SidePanel({
     super.key,
     required this.controller,
     required this.onPgnImportPressed,
+    required this.openFileInProgress,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: controller,
-      builder: (context, value, child) => Expanded(
-        child: value.game == null
-            ? NoGameLoadedPanel(
-                onPgnImportPressed: onPgnImportPressed,
-              )
-            : GameLoadedPanel(
-                controller: controller,
-              ),
-      ),
+    return openFileInProgress
+        ? const OpenFileInProgressPanel()
+        : ValueListenableBuilder(
+            valueListenable: controller,
+            builder: (context, value, child) => value.game == null
+                ? NoGameLoadedPanel(
+                    onPgnImportPressed: onPgnImportPressed,
+                  )
+                : GameLoadedPanel(
+                    controller: controller,
+                  ),
+          );
+  }
+}
+
+class OpenFileInProgressPanel extends StatelessWidget {
+  const OpenFileInProgressPanel({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      child: const CircularProgressIndicator(),
     );
   }
 }
