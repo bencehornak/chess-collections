@@ -340,6 +340,7 @@ class MaterialControllerButtons extends StatelessWidget {
   }
 
   void _goForward() {
+    if (controller.currentNode == null) return;
     controller.goForward(controller.currentNode!.children.first);
   }
 }
