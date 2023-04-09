@@ -120,25 +120,28 @@ class _AppContentState extends State<AppContent> {
       focusNode: _focusNode,
       onKeyEvent: _onKeyEvent,
       child: LayoutBuilder(
-        builder: (context, constraintType) => Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              width: min(
-                  constraintType.maxHeight - 80, .6 * constraintType.maxWidth),
-              child: MaterialChessBoardWithButtons(
-                controller: widget.controller,
-                boardOrientation: widget.boardOrientation,
-              ),
-            ),
-            ExpandedVerticalGameMetadataAndHistoryPanel(
-              controller: widget.controller,
-            ),
-          ],
-        ),
+        builder: (context, constraint) =>
+            _buildLargeScreen(context, constraint),
       ),
     );
   }
+
+  Widget _buildLargeScreen(BuildContext context, BoxConstraints constraint) =>
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: min(constraint.maxHeight - 80, .6 * constraint.maxWidth),
+            child: MaterialChessBoardWithButtons(
+              controller: widget.controller,
+              boardOrientation: widget.boardOrientation,
+            ),
+          ),
+          ExpandedVerticalGameMetadataAndHistoryPanel(
+            controller: widget.controller,
+          ),
+        ],
+      );
 
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
     if (event is KeyDownEvent || event is KeyRepeatEvent) {
