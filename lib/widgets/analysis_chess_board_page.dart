@@ -91,6 +91,11 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     final snackBar = SnackBar(
       content:
           Text(error.toString(), style: TextStyle(color: colorScheme.onError)),
+      action: SnackBarAction(
+        label: 'Retry',
+        onPressed: _importPgn,
+        textColor: colorScheme.onError,
+      ),
       backgroundColor: colorScheme.error,
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
