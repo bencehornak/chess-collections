@@ -600,33 +600,30 @@ class _ChessMoveState extends State<ChessMove> {
         onTap: _onMoveSelected,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Show the move number indicator only for white moves and for
-              // first moves after a decision point
-              if (widget.node.move!.color == ch.Color.WHITE ||
-                  widget.node.parent!.children.length > 1)
-                Padding(
-                  padding: const EdgeInsets.only(right: 4),
-                  child: Text(
-                    widget.node.move!.moveNumberIndicator,
+          child: Text.rich(
+            TextSpan(
+              children: [
+                // Show the move number indicator only for white moves and for
+                // first moves after a decision point
+                if (widget.node.move!.color == ch.Color.WHITE ||
+                    widget.node.parent!.children.length > 1)
+                  TextSpan(
+                    text: widget.node.move!.moveNumberIndicator,
                     style: widget.node.variationDepth == 0
                         ? _mainLineMoveNumberTextStyle
                         : _sideLineMoveNumberTextStyle,
                   ),
-                ),
-              Text(widget.node.move!.san,
-                  style: widget.node.variationDepth == 0
-                      ? _mainLineMoveTextStyle
-                      : _sideLineMoveTextStyle),
-              if (widget.node.move!.comment != null)
-                Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Text(widget.node.move!.comment!,
+                TextSpan(
+                    text: widget.node.move!.san,
+                    style: widget.node.variationDepth == 0
+                        ? _mainLineMoveTextStyle
+                        : _sideLineMoveTextStyle),
+                if (widget.node.move!.comment != null)
+                  TextSpan(
+                      text: widget.node.move!.comment!,
                       style: _commentTextStyle),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
