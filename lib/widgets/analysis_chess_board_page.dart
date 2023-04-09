@@ -70,10 +70,10 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
         allowedExtensions: ['pgn'],
       );
 
-      if (result == null) return null;
-
-      String pgnString = utf8.decode(result.files.single.bytes!.toList());
-      importedGames = PgnReader.fromString(pgnString).parse();
+      if (result != null) {
+        String pgnString = utf8.decode(result.files.single.bytes!.toList());
+        importedGames = PgnReader.fromString(pgnString).parse();
+      }
     } catch (error, stackTrace) {
       _logger.warning('Error while parsing PGN', error, stackTrace);
       _showError(error);
