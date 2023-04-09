@@ -119,10 +119,13 @@ class _AppContentState extends State<AppContent> {
     return Focus(
       focusNode: _focusNode,
       onKeyEvent: _onKeyEvent,
-      child: LayoutBuilder(
-        builder: (context, constraint) =>
-            _buildLargeScreen(context, constraint),
-      ),
+      child: LayoutBuilder(builder: (context, constraint) {
+        if (constraint.maxWidth / constraint.maxHeight >= 1.0) {
+          return _buildLargeScreen(context, constraint);
+        } else {
+          return _buildSmallScreen(context, constraint);
+        }
+      }),
     );
   }
 
@@ -135,6 +138,25 @@ class _AppContentState extends State<AppContent> {
             child: MaterialChessBoardWithButtons(
               controller: widget.controller,
               boardOrientation: widget.boardOrientation,
+              chessBoardFlex: 0,
+            ),
+          ),
+          ExpandedVerticalGameMetadataAndHistoryPanel(
+            controller: widget.controller,
+          ),
+        ],
+      );
+
+  Widget _buildSmallScreen(BuildContext context, BoxConstraints constraint) =>
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: min(constraint.maxWidth, .65 * constraint.maxHeight),
+            child: MaterialChessBoardWithButtons(
+              controller: widget.controller,
+              boardOrientation: widget.boardOrientation,
+              chessBoardFlex: 1,
             ),
           ),
           ExpandedVerticalGameMetadataAndHistoryPanel(
@@ -172,11 +194,13 @@ class _AppContentState extends State<AppContent> {
 class MaterialChessBoardWithButtons extends StatelessWidget {
   final AnalysisChessBoardController controller;
   final PlayerColor boardOrientation;
+  final int chessBoardFlex;
 
   const MaterialChessBoardWithButtons({
     super.key,
     required this.controller,
     required this.boardOrientation,
+    required this.chessBoardFlex,
   });
 
   @override
@@ -186,9 +210,12 @@ class MaterialChessBoardWithButtons extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          MaterialChessBoard(
-            controller: controller,
-            boardOrientation: boardOrientation,
+          Expanded(
+            flex: chessBoardFlex,
+            child: MaterialChessBoard(
+              controller: controller,
+              boardOrientation: boardOrientation,
+            ),
           ),
           const SizedBox(
             height: 24,
