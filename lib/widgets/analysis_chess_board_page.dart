@@ -1,8 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:chess_collections/widgets/analysis_chess_board_controller.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart' hide Color;
@@ -10,7 +13,6 @@ import 'package:logging/logging.dart';
 import 'package:chess/chess.dart' as ch;
 
 import '../util/constants.dart';
-import 'import_pgn_dialog.dart';
 
 final _logger = Logger('home_page');
 
@@ -61,18 +63,37 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       return;
     }
     setState(() => _importPgnDialogOpen = true);
-    final importedGame = await _showImportDialogPgn();
+    List<ChessHalfMoveTree>? importedGames;
+    try {
+      FilePickerResult? result =
+          await FilePicker.platform.pickFiles(withData: true);
+
+      if (result == null) return null;
+
+      String pgnString = utf8.decode(result.files.single.bytes!.toList());
+      importedGames = PgnReader.fromString(pgnString).parse();
+    } catch (error, stackTrace) {
+      _logger.warning('Error while parsing PGN', error, stackTrace);
+      _showError(error);
+    }
+
     setState(() => _importPgnDialogOpen = false);
     _logger.info(
-        'The imported games are (choosing the first game):\n$importedGame');
-    controller.loadGame(importedGame?.firstOrNull);
+        'The imported games are (choosing the first game):\n$importedGames');
+    controller.loadGame(importedGames?.firstOrNull);
   }
 
-  Future<List<ChessHalfMoveTree>?> _showImportDialogPgn() {
-    return showDialog<List<ChessHalfMoveTree>>(
-      context: context,
-      builder: (BuildContext context) => const ImportPgnDialog(),
+  void _showError(dynamic error) {
+    if (!mounted) return;
+
+    var themeData = Theme.of(context);
+    final colorScheme = themeData.colorScheme;
+    final snackBar = SnackBar(
+      content:
+          Text(error.toString(), style: TextStyle(color: colorScheme.onError)),
+      backgroundColor: colorScheme.error,
     );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   void _flipBoard() {
