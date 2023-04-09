@@ -63,6 +63,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         withData: true,
         allowedExtensions: ['pgn'],
+        type: FileType.custom,
       );
 
       if (result != null) {
