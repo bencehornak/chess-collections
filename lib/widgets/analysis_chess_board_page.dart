@@ -35,11 +35,6 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     super.initState();
 
     controller = AnalysisChessBoardController();
-
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await Future.delayed(const Duration(milliseconds: 200));
-      if (game == null && mounted) _importPgn();
-    });
   }
 
   @override
