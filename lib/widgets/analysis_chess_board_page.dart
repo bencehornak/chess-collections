@@ -185,6 +185,10 @@ class _AppContentState extends State<AppContent> {
               chessBoardFlex: 1,
             ),
           ),
+          const Divider(
+            indent: 24,
+            endIndent: 24,
+          ),
           SidePanel(
             controller: widget.controller,
             onPgnImportPressed: widget.onPgnImportPressed,
