@@ -27,7 +27,6 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
   ChessHalfMoveTree? game;
   late AnalysisChessBoardController controller;
   bool _importPgnDialogOpen = false;
-  late FocusNode _focusNode;
   PlayerColor _boardOrientation = PlayerColor.white;
 
   @override
@@ -35,19 +34,11 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     super.initState();
 
     controller = AnalysisChessBoardController();
-    _focusNode = FocusNode(debugLabel: 'AnalysisChessBoardPage');
-    _focusNode.requestFocus();
 
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       await Future.delayed(const Duration(milliseconds: 200));
       if (game == null && mounted) _importPgn();
     });
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
   }
 
   @override
@@ -57,27 +48,9 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
         onPgnImportPressed: _importPgn,
         onFlipBoardPressed: _flipBoard,
       ),
-      body: Focus(
-        focusNode: _focusNode,
-        onKeyEvent: _onKeyEvent,
-        child: LayoutBuilder(
-          builder: (context, constraintType) => Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                width: min(constraintType.maxHeight - 80,
-                    .6 * constraintType.maxWidth),
-                child: MaterialChessBoardWithButtons(
-                  controller: controller,
-                  boardOrientation: _boardOrientation,
-                ),
-              ),
-              ExpandedVerticalGameMetadataAndHistoryPanel(
-                controller: controller,
-              ),
-            ],
-          ),
-        ),
+      body: AppContent(
+        controller: controller,
+        boardOrientation: _boardOrientation,
       ),
     );
   }
@@ -109,18 +82,76 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
           : PlayerColor.white;
     });
   }
+}
+
+class AppContent extends StatefulWidget {
+  final AnalysisChessBoardController controller;
+  final PlayerColor boardOrientation;
+
+  const AppContent({
+    required this.controller,
+    required this.boardOrientation,
+    super.key,
+  });
+
+  @override
+  State<StatefulWidget> createState() => _AppContentState();
+}
+
+class _AppContentState extends State<AppContent> {
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    _focusNode = FocusNode(debugLabel: 'AnalysisChessBoardPage');
+    _focusNode.requestFocus();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      focusNode: _focusNode,
+      onKeyEvent: _onKeyEvent,
+      child: LayoutBuilder(
+        builder: (context, constraintType) => Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: min(
+                  constraintType.maxHeight - 80, .6 * constraintType.maxWidth),
+              child: MaterialChessBoardWithButtons(
+                controller: widget.controller,
+                boardOrientation: widget.boardOrientation,
+              ),
+            ),
+            ExpandedVerticalGameMetadataAndHistoryPanel(
+              controller: widget.controller,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   KeyEventResult _onKeyEvent(FocusNode node, KeyEvent event) {
     if (event is KeyDownEvent || event is KeyRepeatEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
         _logger.info('Left key pressed');
-        controller.goBackIfPossible();
+        widget.controller.goBackIfPossible();
         return KeyEventResult.handled;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
         _logger.info('Right key pressed');
-        if (controller.currentNode != null &&
-            controller.currentNode!.children.isNotEmpty) {
-          controller.goForward(controller.currentNode!.children.first);
+        if (widget.controller.currentNode != null &&
+            widget.controller.currentNode!.children.isNotEmpty) {
+          widget.controller
+              .goForward(widget.controller.currentNode!.children.first);
         }
         return KeyEventResult.handled;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
