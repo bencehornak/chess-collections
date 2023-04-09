@@ -52,6 +52,7 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
       body: AppContent(
         controller: controller,
         boardOrientation: _boardOrientation,
+        onPgnImportPressed: _importPgn,
       ),
     );
   }
@@ -114,10 +115,12 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
 class AppContent extends StatefulWidget {
   final AnalysisChessBoardController controller;
   final PlayerColor boardOrientation;
+  final VoidCallback onPgnImportPressed;
 
   const AppContent({
     required this.controller,
     required this.boardOrientation,
+    required this.onPgnImportPressed,
     super.key,
   });
 
@@ -168,8 +171,9 @@ class _AppContentState extends State<AppContent> {
               chessBoardFlex: 0,
             ),
           ),
-          ExpandedVerticalGameMetadataAndHistoryPanel(
+          SidePanel(
             controller: widget.controller,
+            onPgnImportPressed: widget.onPgnImportPressed,
           ),
         ],
       );
@@ -186,8 +190,9 @@ class _AppContentState extends State<AppContent> {
               chessBoardFlex: 1,
             ),
           ),
-          ExpandedVerticalGameMetadataAndHistoryPanel(
+          SidePanel(
             controller: widget.controller,
+            onPgnImportPressed: widget.onPgnImportPressed,
           ),
         ],
       );
@@ -376,12 +381,14 @@ class MaterialControllerButton extends StatelessWidget {
   }
 }
 
-class ExpandedVerticalGameMetadataAndHistoryPanel extends StatelessWidget {
+class SidePanel extends StatelessWidget {
   final AnalysisChessBoardController controller;
+  final VoidCallback onPgnImportPressed;
 
-  const ExpandedVerticalGameMetadataAndHistoryPanel({
+  const SidePanel({
     super.key,
     required this.controller,
+    required this.onPgnImportPressed,
   });
 
   @override
@@ -390,27 +397,63 @@ class ExpandedVerticalGameMetadataAndHistoryPanel extends StatelessWidget {
       valueListenable: controller,
       builder: (context, value, child) => Expanded(
         child: value.game == null
-            ? Container()
-            : ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 120),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        ChessGameMetadata(
-                          controller: controller,
-                        ),
-                        ChessMoveHistory(
-                          analysisChessBoardController: controller,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+            ? NoGameLoadedPanel(
+                onPgnImportPressed: onPgnImportPressed,
+              )
+            : GameLoadedPanel(
+                controller: controller,
               ),
+      ),
+    );
+  }
+}
+
+class NoGameLoadedPanel extends StatelessWidget {
+  final VoidCallback onPgnImportPressed;
+
+  const NoGameLoadedPanel({
+    required this.onPgnImportPressed,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      alignment: Alignment.center,
+      child: FilledButton.icon(
+        onPressed: onPgnImportPressed,
+        icon: const Icon(Icons.file_open),
+        label: const Text('Open a PGN file'),
+      ),
+    );
+  }
+}
+
+class GameLoadedPanel extends StatelessWidget {
+  final AnalysisChessBoardController controller;
+
+  const GameLoadedPanel({required this.controller, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minWidth: 120),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ChessGameMetadata(
+                controller: controller,
+              ),
+              ChessMoveHistory(
+                analysisChessBoardController: controller,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -427,7 +470,7 @@ class ChessCollectionsAppBar extends AppBar {
             IconButton(
               icon: const Icon(Icons.file_open),
               onPressed: onPgnImportPressed,
-              tooltip: 'Import PGN',
+              tooltip: 'Open a PGN file',
             ),
             IconButton(
               icon: const Icon(Icons.rotate_right),
