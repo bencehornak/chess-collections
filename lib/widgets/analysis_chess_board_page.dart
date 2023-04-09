@@ -65,8 +65,10 @@ class _AnalysisChessBoardPageState extends State<AnalysisChessBoardPage> {
     setState(() => _importPgnDialogOpen = true);
     List<ChessHalfMoveTree>? importedGames;
     try {
-      FilePickerResult? result =
-          await FilePicker.platform.pickFiles(withData: true);
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        withData: true,
+        allowedExtensions: ['pgn'],
+      );
 
       if (result == null) return null;
 
