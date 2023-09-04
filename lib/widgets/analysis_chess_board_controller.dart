@@ -92,7 +92,9 @@ class AnalysisChessBoardController
         final matchingContinuationNode = children.firstWhereOrNull(
             (child) => _movesEqual(child.move!, board!.history.last.move));
         if (matchingContinuationNode != null) {
+          _notifyNodeNotifier(value.currentNode!, false);
           value.currentNode = matchingContinuationNode;
+          _notifyNodeNotifier(value.currentNode!, true);
           value._lastChessBoardState = board!.history.last;
           notifyListeners();
           return;
@@ -101,6 +103,9 @@ class AnalysisChessBoardController
     }
     // Otherwise the user has diverged from the analysis, let's set the
     // currentNode to null
+    if (value.currentNode != null) {
+      _notifyNodeNotifier(value.currentNode!, false);
+    }
     value.currentNode = null;
     value._lastChessBoardState = null;
     notifyListeners();
