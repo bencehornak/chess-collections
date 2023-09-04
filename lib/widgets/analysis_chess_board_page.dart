@@ -681,6 +681,8 @@ class _ChessMoveState extends State<ChessMove> {
     final selected = widget.nodeNotifier.value.selected;
     if (selected) {
       _focusNode.requestFocus();
+    } else {
+      _focusNode.unfocus();
     }
   }
 
