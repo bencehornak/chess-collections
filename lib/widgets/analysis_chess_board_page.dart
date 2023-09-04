@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:math';
 
 import 'package:chess_collections/widgets/analysis_chess_board_controller.dart';
+import 'package:chess_collections/widgets/analysis_chess_board_node_notifier.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
@@ -626,6 +628,7 @@ class LinearChessMoveSequenceWidget extends StatelessWidget {
 
 class ChessMove extends StatefulWidget {
   final AnalysisChessBoardController analysisChessBoardController;
+  final AnalysisChessBoardNodeNotifier nodeNotifier;
   final ChessHalfMoveTreeNode node;
   final Chess board;
 
@@ -635,6 +638,7 @@ class ChessMove extends StatefulWidget {
     required this.board,
     Key? key,
   })  : assert(!node.rootNode),
+        nodeNotifier = analysisChessBoardController.nodeNotifier(node),
         super(key: key);
 
   @override
@@ -657,26 +661,25 @@ class _ChessMoveState extends State<ChessMove> {
   void initState() {
     super.initState();
     _focusNode = FocusNode(debugLabel: '_ChessMoveState ${widget.node.move}');
-    widget.analysisChessBoardController.addListener(_onBoardChanged);
+    widget.nodeNotifier.addListener(_onBoardChanged);
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
-    widget.analysisChessBoardController.removeListener(_onBoardChanged);
+    widget.nodeNotifier.removeListener(_onBoardChanged);
     super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant ChessMove oldWidget) {
     super.didUpdateWidget(oldWidget);
-    oldWidget.analysisChessBoardController.removeListener(_onBoardChanged);
-    widget.analysisChessBoardController.addListener(_onBoardChanged);
+    oldWidget.nodeNotifier.removeListener(_onBoardChanged);
+    widget.nodeNotifier.addListener(_onBoardChanged);
   }
 
   void _onBoardChanged() {
-    final selected =
-        widget.analysisChessBoardController.currentNode == widget.node;
+    final selected = widget.nodeNotifier.value.selected;
     if (selected) {
       _focusNode.requestFocus();
     }

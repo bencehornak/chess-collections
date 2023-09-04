@@ -1,3 +1,4 @@
+import 'package:chess_collections/widgets/analysis_chess_board_node_notifier.dart';
 import 'package:chess_pgn_parser/chess_pgn_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chess_board/flutter_chess_board.dart';
@@ -30,11 +31,15 @@ class AnalysisChessBoardController
 
   bool _skipNextOnBoardChange = false;
 
+  final Map<ChessHalfMoveTreeNode, AnalysisChessBoardNodeNotifier>
+      _nodeNotifiers = {};
+
   AnalysisChessBoardController() : super(AnalysisChessBoardState());
 
   @override
   void dispose() {
     value.chessBoardController.dispose();
+    _resetNodeNotifiers();
     super.dispose();
   }
 
@@ -42,7 +47,23 @@ class AnalysisChessBoardController
     value._reset();
     value.game = game;
     value.currentNode = game?.rootNode;
+    _resetNodeNotifiers();
+    if (game != null) {
+      _createNodeNotifiers();
+    }
     notifyListeners();
+  }
+
+  void _resetNodeNotifiers() {
+    _nodeNotifiers.values.forEach((notifier) => notifier.dispose());
+    _nodeNotifiers.clear();
+  }
+
+  void _createNodeNotifiers() {
+    game!.traverse((board, node) {
+      final bool selected = node.rootNode;
+      _nodeNotifiers[node] = AnalysisChessBoardNodeNotifier(selected);
+    });
   }
 
   void goTo(ChessHalfMoveTreeNode node, Chess board) {
@@ -51,6 +72,7 @@ class AnalysisChessBoardController
     value.chessBoardController = ChessBoardController.fromGame(board);
     value.chessBoardController.addListener(_onBoardChange);
     value._lastChessBoardState = board.history.last;
+    _notifyAllNodeNotifiers(node);
     notifyListeners();
   }
 
@@ -89,7 +111,9 @@ class AnalysisChessBoardController
 
     _skipNextOnBoardChange = true;
 
+    _notifyNodeNotifier(value.currentNode!, false);
     value.currentNode = value.currentNode!.parent;
+    _notifyNodeNotifier(value.currentNode!, true);
     value.chessBoardController.undoMove();
     value._lastChessBoardState =
         value.chessBoardController.game.history.lastOrNull;
@@ -101,13 +125,31 @@ class AnalysisChessBoardController
 
     _skipNextOnBoardChange = true;
 
+    _notifyNodeNotifier(value.currentNode!, false);
     value.currentNode = child;
+    _notifyNodeNotifier(value.currentNode!, true);
     value.chessBoardController
         .makeMove(from: child.move!.fromAlgebraic, to: child.move!.toAlgebraic);
     value._lastChessBoardState =
         value.chessBoardController.game.history.lastOrNull;
     notifyListeners();
   }
+
+  void _notifyNodeNotifier(ChessHalfMoveTreeNode node, bool selected) =>
+      _nodeNotifiers[node]!.value = AnalysisChessBoardNodeState(selected);
+
+  void _notifyAllNodeNotifiers(ChessHalfMoveTreeNode selectedNode) {
+    _nodeNotifiers.entries.forEach((entry) {
+      final ChessHalfMoveTreeNode node = entry.key;
+      final AnalysisChessBoardNodeNotifier notifier = entry.value;
+
+      notifier.value =
+          AnalysisChessBoardNodeState(identical(node, selectedNode));
+    });
+  }
+
+  AnalysisChessBoardNodeNotifier nodeNotifier(ChessHalfMoveTreeNode node) =>
+      _nodeNotifiers[node]!;
 
   bool _movesEqual(Move a, Move b) {
     return a.color == b.color &&
