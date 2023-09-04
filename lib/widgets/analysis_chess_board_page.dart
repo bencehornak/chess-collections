@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:chess_collections/widgets/analysis_chess_board_controller.dart';
