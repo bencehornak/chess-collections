@@ -645,8 +645,12 @@ class ChessMove extends StatefulWidget {
 }
 
 class _ChessMoveState extends State<ChessMove> {
-  static const _moveNumberTextStyle = TextStyle(fontWeight: FontWeight.bold);
-  static const _moveTextStyle = TextStyle();
+  static const _nonPastMoveNumberTextStyle =
+      TextStyle(fontWeight: FontWeight.bold);
+  static const _pastMoveNumberTextStyle =
+      TextStyle(fontWeight: FontWeight.w900);
+  static const _pastMoveTextStyle = TextStyle(fontWeight: FontWeight.w700);
+  static const _nonPastMoveTextStyle = TextStyle();
   static const _commentTextStyle = TextStyle(fontStyle: FontStyle.italic);
 
   late FocusNode _focusNode;
@@ -693,22 +697,33 @@ class _ChessMoveState extends State<ChessMove> {
         onTap: _onMoveTapped,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
-          child: Text.rich(
-            TextSpan(
-              children: [
-                // Show the move number indicator only for white moves and for
-                // first moves after a decision point
-                if (widget.node.move!.color == ch.Color.WHITE ||
-                    widget.node.parent!.children.length > 1)
-                  TextSpan(
+          child: ValueListenableBuilder(
+            valueListenable: widget.nodeNotifier,
+            builder: (context, nodeState, child) => Text.rich(
+              TextSpan(
+                children: [
+                  // Show the move number indicator only for white moves and for
+                  // first moves after a decision point
+                  if (widget.node.move!.color == ch.Color.WHITE ||
+                      widget.node.parent!.children.length > 1)
+                    TextSpan(
                       text: widget.node.move!.moveNumberIndicator,
-                      style: _moveNumberTextStyle),
-                TextSpan(text: widget.node.move!.san, style: _moveTextStyle),
-                if (widget.node.move!.comment != null)
+                      style: nodeState.pastMove || nodeState.selected
+                          ? _pastMoveNumberTextStyle
+                          : _nonPastMoveNumberTextStyle,
+                    ),
                   TextSpan(
-                      text: widget.node.move!.comment!,
-                      style: _commentTextStyle),
-              ],
+                    text: widget.node.move!.san,
+                    style: nodeState.pastMove || nodeState.selected
+                        ? _pastMoveTextStyle
+                        : _nonPastMoveTextStyle,
+                  ),
+                  if (widget.node.move!.comment != null)
+                    TextSpan(
+                        text: widget.node.move!.comment!,
+                        style: _commentTextStyle),
+                ],
+              ),
             ),
           ),
         ),

@@ -62,7 +62,10 @@ class AnalysisChessBoardController
   void _createNodeNotifiers() {
     game!.traverse((board, node) {
       final bool selected = node.rootNode;
-      _nodeNotifiers[node] = AnalysisChessBoardNodeNotifier(selected);
+      _nodeNotifiers[node] = AnalysisChessBoardNodeNotifier(
+        selected: selected,
+        pastMove: false,
+      );
     });
   }
 
@@ -92,9 +95,11 @@ class AnalysisChessBoardController
         final matchingContinuationNode = children.firstWhereOrNull(
             (child) => _movesEqual(child.move!, board!.history.last.move));
         if (matchingContinuationNode != null) {
-          _notifyNodeNotifier(value.currentNode!, false);
+          _notifyNodeNotifier(value.currentNode!,
+              selected: false, pastMove: true);
           value.currentNode = matchingContinuationNode;
-          _notifyNodeNotifier(value.currentNode!, true);
+          _notifyNodeNotifier(value.currentNode!,
+              selected: true, pastMove: false);
           value._lastChessBoardState = board!.history.last;
           notifyListeners();
           return;
@@ -104,7 +109,7 @@ class AnalysisChessBoardController
     // Otherwise the user has diverged from the analysis, let's set the
     // currentNode to null
     if (value.currentNode != null) {
-      _notifyNodeNotifier(value.currentNode!, false);
+      _notifyNodeNotifier(value.currentNode!, selected: false, pastMove: true);
     }
     value.currentNode = null;
     value._lastChessBoardState = null;
@@ -116,9 +121,9 @@ class AnalysisChessBoardController
 
     _skipNextOnBoardChange = true;
 
-    _notifyNodeNotifier(value.currentNode!, false);
+    _notifyNodeNotifier(value.currentNode!, selected: false, pastMove: false);
     value.currentNode = value.currentNode!.parent;
-    _notifyNodeNotifier(value.currentNode!, true);
+    _notifyNodeNotifier(value.currentNode!, selected: true, pastMove: false);
     value.chessBoardController.undoMove();
     value._lastChessBoardState =
         value.chessBoardController.game.history.lastOrNull;
@@ -130,9 +135,9 @@ class AnalysisChessBoardController
 
     _skipNextOnBoardChange = true;
 
-    _notifyNodeNotifier(value.currentNode!, false);
+    _notifyNodeNotifier(value.currentNode!, selected: false, pastMove: true);
     value.currentNode = child;
-    _notifyNodeNotifier(value.currentNode!, true);
+    _notifyNodeNotifier(value.currentNode!, selected: true, pastMove: false);
     value.chessBoardController
         .makeMove(from: child.move!.fromAlgebraic, to: child.move!.toAlgebraic);
     value._lastChessBoardState =
@@ -140,17 +145,37 @@ class AnalysisChessBoardController
     notifyListeners();
   }
 
-  void _notifyNodeNotifier(ChessHalfMoveTreeNode node, bool selected) =>
-      _nodeNotifiers[node]!.value = AnalysisChessBoardNodeState(selected);
+  void _notifyNodeNotifier(ChessHalfMoveTreeNode node,
+          {required bool selected, required bool pastMove}) =>
+      _nodeNotifiers[node]!.value = AnalysisChessBoardNodeState(
+        selected: selected,
+        pastMove: pastMove,
+      );
 
   void _notifyAllNodeNotifiers(ChessHalfMoveTreeNode selectedNode) {
+    final Set<ChessHalfMoveTreeNode> parents =
+        _collectParents(selectedNode).toSet();
+
     _nodeNotifiers.entries.forEach((entry) {
       final ChessHalfMoveTreeNode node = entry.key;
       final AnalysisChessBoardNodeNotifier notifier = entry.value;
 
+      final bool selected = identical(node, selectedNode);
+      final bool pastMove = parents.contains(node) && !selected;
       notifier.value =
-          AnalysisChessBoardNodeState(identical(node, selectedNode));
+          AnalysisChessBoardNodeState(selected: selected, pastMove: pastMove);
     });
+  }
+
+  List<ChessHalfMoveTreeNode> _collectParents(ChessHalfMoveTreeNode node) {
+    ChessHalfMoveTreeNode? nextNode = node;
+    final List<ChessHalfMoveTreeNode> out = [];
+    while (nextNode != null) {
+      out.add(nextNode);
+      nextNode = nextNode.parent;
+    }
+
+    return out;
   }
 
   AnalysisChessBoardNodeNotifier nodeNotifier(ChessHalfMoveTreeNode node) =>
