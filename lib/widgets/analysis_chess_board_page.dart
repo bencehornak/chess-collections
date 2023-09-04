@@ -660,31 +660,31 @@ class _ChessMoveState extends State<ChessMove> {
   void initState() {
     super.initState();
     _focusNode = FocusNode(debugLabel: '_ChessMoveState ${widget.node.move}');
-    widget.nodeNotifier.addListener(_onBoardChanged);
+    widget.nodeNotifier.addListener(_onNodeChanged);
   }
 
   @override
   void dispose() {
     _focusNode.dispose();
-    widget.nodeNotifier.removeListener(_onBoardChanged);
+    widget.nodeNotifier.removeListener(_onNodeChanged);
     super.dispose();
   }
 
   @override
   void didUpdateWidget(covariant ChessMove oldWidget) {
     super.didUpdateWidget(oldWidget);
-    oldWidget.nodeNotifier.removeListener(_onBoardChanged);
-    widget.nodeNotifier.addListener(_onBoardChanged);
+    oldWidget.nodeNotifier.removeListener(_onNodeChanged);
+    widget.nodeNotifier.addListener(_onNodeChanged);
   }
 
-  void _onBoardChanged() {
+  void _onNodeChanged() {
     final selected = widget.nodeNotifier.value.selected;
     if (selected) {
       _focusNode.requestFocus();
     }
   }
 
-  void _onMoveSelected() {
+  void _onMoveTapped() {
     widget.analysisChessBoardController.goTo(widget.node, widget.board);
   }
 
@@ -693,7 +693,7 @@ class _ChessMoveState extends State<ChessMove> {
     return Material(
       child: InkWell(
         focusNode: _focusNode,
-        onTap: _onMoveSelected,
+        onTap: _onMoveTapped,
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: Text.rich(
