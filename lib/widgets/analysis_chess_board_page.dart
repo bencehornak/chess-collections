@@ -645,13 +645,8 @@ class ChessMove extends StatefulWidget {
 }
 
 class _ChessMoveState extends State<ChessMove> {
-  static const _mainLineMoveNumberTextStyle =
-      TextStyle(fontWeight: FontWeight.bold);
-  static const _mainLineMoveTextStyle =
-      TextStyle(decoration: TextDecoration.underline);
-  static const _sideLineMoveNumberTextStyle =
-      TextStyle(fontWeight: FontWeight.bold);
-  static const _sideLineMoveTextStyle = TextStyle();
+  static const _moveNumberTextStyle = TextStyle(fontWeight: FontWeight.bold);
+  static const _moveTextStyle = TextStyle();
   static const _commentTextStyle = TextStyle(fontStyle: FontStyle.italic);
 
   late FocusNode _focusNode;
@@ -706,16 +701,9 @@ class _ChessMoveState extends State<ChessMove> {
                 if (widget.node.move!.color == ch.Color.WHITE ||
                     widget.node.parent!.children.length > 1)
                   TextSpan(
-                    text: widget.node.move!.moveNumberIndicator,
-                    style: widget.node.variationDepth == 0
-                        ? _mainLineMoveNumberTextStyle
-                        : _sideLineMoveNumberTextStyle,
-                  ),
-                TextSpan(
-                    text: widget.node.move!.san,
-                    style: widget.node.variationDepth == 0
-                        ? _mainLineMoveTextStyle
-                        : _sideLineMoveTextStyle),
+                      text: widget.node.move!.moveNumberIndicator,
+                      style: _moveNumberTextStyle),
+                TextSpan(text: widget.node.move!.san, style: _moveTextStyle),
                 if (widget.node.move!.comment != null)
                   TextSpan(
                       text: widget.node.move!.comment!,
